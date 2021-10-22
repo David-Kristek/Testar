@@ -1,33 +1,40 @@
-import * as React from 'react';
-import { StyleSheet } from 'react-native';
+import * as React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Header from "../components/Header";
+import Icon from "react-native-vector-icons/FontAwesome";
 
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+import { RootNavProps } from "../types";
 
-export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+export default function TabOneScreen({ navigation }: RootNavProps<"Home">) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabOneScreen.tsx" />
-    </View>
+    <>
+      <Header btw>
+        <Text style={styles.bigFont}>2021 Říjen</Text>
+        <TouchableOpacity>
+          <Icon name="ellipsis-v" size={30} />
+        </TouchableOpacity>
+      </Header>
+      <View style={styles.container}>
+        
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   separator: {
     marginVertical: 30,
     height: 1,
-    width: '80%',
+    width: "80%",
+  },
+  bigFont: {
+    fontSize: 22,
   },
 });
