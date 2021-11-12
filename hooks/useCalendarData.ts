@@ -1,15 +1,34 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
-type calendarData = {};
-interface Props {
-  year: number;
-  month: number;
-}
+type monthData = { month: number; day: number }[][];
+type dataType = {
+  months: {
+    name: string;
+    nuberOfDays: number;
+  }[];
+  days: string[];
+};
+export const data = {
+  months: [
+    { name: "Leden" },
+    { name: "Únor" },
+    { name: "Březen" },
+    { name: "Duben" },
+    { name: "Květen" },
+    { name: "Červen" },
+    { name: "Červenec" },
+    { name: "Srpen" },
+    { name: "Září" },
+    { name: "Říjen" },
+    { name: "Listopad" },
+    { name: "Prosinec" },
+  ],
+  days: ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek"],
+};
+export default function useCalendarData(year: number, month: number) {
+  const [calendarData, setCalendarData] = useState<monthData>();
 
-export default function useCalendarData({ year, month }: Props) {
-  const [calendarData, setCalendarData] = useState<calendarData>();
-  const d = new Date();
-  const data = {
+  const data: dataType = {
     months: [
       { name: "Leden", nuberOfDays: 31 },
       { name: "Únor", nuberOfDays: year % 4 === 0 ? 29 : 28 },
@@ -24,15 +43,66 @@ export default function useCalendarData({ year, month }: Props) {
       { name: "Listopad", nuberOfDays: 30 },
       { name: "Prosinec", nuberOfDays: 31 },
     ],
-    days: [
-      "Pondělí",
-      "Úterý",
-      "Středa",
-      "Čtvrtek",
-      "Pátek",
-      "Sobota",
-      "Neděle",
-    ],
+    days: ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek"],
   };
-  d.getDate()
+  // const month = monthN - 1;
+  useEffect(() => {
+    const date = new Date(year, month, 1);
+    var FirstDayInMonth;
+    var MonthData = [];
+    var plusS = false;
+    // dopočítání jaký den v týdnu je první v měsíci (protože v JS začínají dny od neděle)
+    const nWeekDay = date.getDay();
+    if (nWeekDay === 0) FirstDayInMonth = 6;
+    else FirstDayInMonth = nWeekDay - 1;
+
+    var dayCount = 1;
+    //  for -> max 6 týdnů, v případě méně dá se uvnitř break
+    for (let week = 0; week < 6; week++) {
+      var weekData = [];
+      // pokud je první den v měsíci sobota nebo neděle (5, 6) a je první týden (1 + 4)
+      if (FirstDayInMonth >= dayCount + 4) {
+        // počítání je posunuto
+        dayCount += 7 - FirstDayInMonth;
+        // začína se od pondělí
+        FirstDayInMonth = 0;
+      }
+      // pokud jsou v dalším týdnu dny jenom z dalšího měsíce -> zruší se cyklus
+      if (dayCount - FirstDayInMonth > data.months[month].nuberOfDays) break;
+      // for od pondělí do pátku
+      for (let weekDay = 1; weekDay <= 5; weekDay++) {
+        // pokud je počítání dnů menší než začátek měsíce, vypisuje se minulý měsíc
+        if (dayCount < FirstDayInMonth + 1) {
+          var previousMonthNumber = month === 0 ? 11 : month - 1;
+          var previousMonth = data.months[previousMonthNumber];
+
+          weekData.push({
+            month: previousMonthNumber,
+            // postupně stoupá ( + dayCount) od   rozdílu max dnů minulého měsíce a začátku dnů tohoto měsíce
+            day: previousMonth.nuberOfDays - FirstDayInMonth + dayCount,
+          });
+        }
+        // pokud již dny přesahují max dnů měsíce -> začíná od 1 další měsíc
+        else if (dayCount - FirstDayInMonth > data.months[month].nuberOfDays) {
+          var nextMonthNumber = month === 11 ? 0 : month + 1;
+          weekData.push({
+            month: nextMonthNumber,
+            day: dayCount - data.months[month].nuberOfDays - FirstDayInMonth,
+          });
+        } else
+          weekData.push({
+            month: month,
+            day: dayCount - FirstDayInMonth,
+          });
+        dayCount++;
+      }
+      // weekend
+      dayCount += 2;
+      MonthData.push(weekData);
+    }
+    // console.log(MonthData);
+
+    setCalendarData(MonthData);
+  }, [year, month]);
+  return { data, calendarData };
 }

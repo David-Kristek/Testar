@@ -11,7 +11,7 @@ export default function Header({ children, btw }: Props) {
     <View
       style={[
         style.box,
-        btw && { justifyContent: "space-between", flexDirection: "row" },
+        btw && { justifyContent: "space-between" },
       ]}
     >
       {children}
@@ -21,18 +21,20 @@ export default function Header({ children, btw }: Props) {
 
 const style = StyleSheet.create({
   box: {
+    flexDirection: "row",
     paddingTop: 50,
     width: "105%",
-    height: 100,
+    height: 95,
     paddingHorizontal: 30,
     shadowColor: "#000",
+    marginBottom: 20,
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    marginLeft: -6,
-    elevation: 8,
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    
+    elevation: 4,
   },
 });

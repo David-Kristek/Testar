@@ -11,9 +11,9 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   Home: undefined;
+  AddTask: undefined;
   NotFound: undefined;
 };
-
 export type RootNavProps<T extends keyof RootStackParamList> = {
   navigation: StackNavigationProp<RootStackParamList, T>;
   route: RouteProp<RootStackParamList, T>;

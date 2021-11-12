@@ -28,7 +28,7 @@ export default function Input({ placeholder, set }: Props) {
 const styles = StyleSheet.create({
   TextInput: {
     height: 43,
-    fontSize: 14,
+    fontSize: 18,
     borderRadius: 5,
     borderWidth: 1,
     backgroundColor: "#fafafa",

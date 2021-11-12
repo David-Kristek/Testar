@@ -4,15 +4,14 @@ import * as React from "react";
 import { Pressable } from "react-native";
 
 import NotFoundScreen from "../screens/NotFoundScreen";
-import TabOneScreen from "../screens/TabOneScreen";
+import TabOneScreen from "../screens/Calendar/CalendarScreen";
 import { RootStackParamList } from "../types";
-import Login from "../screens/Login";
-import RegisterScreen from "../screens/Register";
+import Login from "../screens/Auth/Login";
+import RegisterScreen from "../screens/Auth/Register";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function Navigation() {
   return (
-    <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
           name="Login"
@@ -34,7 +33,11 @@ export default function Navigation() {
           component={NotFoundScreen}
           options={{ title: "Oops!" }}
         />
+        <Stack.Screen
+          name="NotFound"
+          component={NotFoundScreen}
+          options={{ title: "Oops!" }}
+        />
       </Stack.Navigator>
-    </NavigationContainer>
   );
 }

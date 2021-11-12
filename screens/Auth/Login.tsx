@@ -1,21 +1,18 @@
 import React, { useState } from "react";
 import Expo from "expo";
-import { Text, View, StyleSheet } from "react-native";
-import Input from "../components/Input";
-const appId = "1047121222092614";
+import { Text, View, StyleSheet, TextInput } from "react-native";
+import Input from "../../components/Input";
 import Icon from "react-native-vector-icons/Ionicons";
-import Button from "../components/Button";
-import { RootNavProps } from "../types";
-export default function RegisterScreen({
-  navigation,
-}: RootNavProps<"Register">) {
-  const onLoginPress = () => {
-    navigation.navigate("Home");
-  };
-  const [groupNameInput, setGroupNameInput] = useState("");
+import Button from "../../components/Button";
+import { AuthNavProps } from "./index";
+export default function LoginScreen({ navigation }: AuthNavProps<"Login">) {
   const [nameInput, setNameInput] = useState("");
-  const [bakalariNameInput, setBakalariNameInput] = useState("");
-  const [bakalariPwdInput, setBakalariPwdInput] = useState("");
+  const [groupInput, setGroupInput] = useState("");
+  const onLoginPress = () => {
+    //  {navigation} : AppNavProps<"Auth">
+    // navigation.navigate("Home");
+  };
+
   return (
     // <KeyboardAvoidingView style={styles.containerView} behavior="padding">
     // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -25,19 +22,17 @@ export default function RegisterScreen({
           <Icon name="calendar-outline" size={30} color="black" />
           <Text style={styles.logoText}>Tesťák</Text>
         </View>
-        <Text style={styles.label}>Jak se bude skupina jmenovat ?</Text>
-        <Input placeholder="Jméno skupiny" set={setGroupNameInput}/>
         <Text style={styles.label}>Vaše jméno: </Text>
-        <Input placeholder="Jméno" set={setNameInput}/>
-        <Text style={styles.label}>Vaše údaje do bakalářů: </Text>
-        <Input placeholder="Uživatelské jméno" set={setBakalariNameInput}/>
-        <Input placeholder="Heslo" set={setBakalariPwdInput}/>
+        <Text style={styles.error}>Jméno je moc dlouhé!</Text>
+        <Input placeholder="Jméno" set={setNameInput} />
+        <Text style={styles.label}>Do jaké skupiny se chcete připojit? </Text>
+        <Input placeholder="Jméno skupiny" set={setGroupInput} />
         <Button text="Připojit se" onPress={onLoginPress} loading={false} />
         <Text
           style={styles.navigate}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => navigation.navigate("Register")}
         >
-          Chcete se připojit ke skupině ?
+          Chcete vytvořit skupinu ?
         </Text>
       </View>
     </View>

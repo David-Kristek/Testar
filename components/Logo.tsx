@@ -1,6 +1,8 @@
 import React from "react";
-import { TextInput, StyleSheet } from "react-native";
+import { TextInput, StyleSheet, View, Text } from "react-native";
 
 interface Props {}
 
 export default function Input({}: Props) {}
+
+const styles = StyleSheet.create({});
