@@ -1,20 +1,31 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useRef, useEffect, useContext } from "react";
 import {
   TextInput,
   StyleSheet,
   View,
   Text,
   TouchableWithoutFeedback,
+  Animated,
 } from "react-native";
 import Badge from "../components/Badge";
+import { CalendarContext } from "../context/CalendarContext";
 export interface Props {
   month: number;
   year: number;
   id: number;
+  active: { month: number; day: number; dayInWeek: number };
+  setActive: (param: { month: number; day: number; dayInWeek: number }) => void;
 }
 import useCalendarData from "../hooks/useCalendarData";
 
-export default function CalendarComponent({ month, year, id }: Props) {
+export default function CalendarComponent({
+  month,
+  year,
+  id,
+  active,
+  setActive,
+}: Props) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const date = new Date();
   const currDate = useMemo(
     () =>
@@ -23,7 +34,6 @@ export default function CalendarComponent({ month, year, id }: Props) {
         : 0,
     [month, year]
   );
-  const [active, setActive] = useState({ month: 0, day: 0 });
   const nextMonthNumber = month === 11 ? 0 : month + 1;
   const prevMonthNumber = month === 0 ? 11 : month - 1;
   const numberOfShownMonth =
@@ -38,9 +48,9 @@ export default function CalendarComponent({ month, year, id }: Props) {
     numberOfShownYear,
     numberOfShownMonth
   );
-
+  const { tasksData } = useContext(CalendarContext);
   useEffect(() => {
-    setActive({ month: 0, day: 0 });
+    setActive({ month: 0, day: 0, dayInWeek: -1 });
   }, []);
   return (
     <>
@@ -48,38 +58,60 @@ export default function CalendarComponent({ month, year, id }: Props) {
         calendarData.map((item, index) => (
           <View style={styles.weekCon} key={index}>
             {item.map((item, index) => (
-              <View style={[styles.dayCl]} key={index}>
-                <View style={styles.badgeBox}>
-                  {item.day === 12 && <Badge color="black" />}
-                </View>
-                <TouchableWithoutFeedback
-                  onPress={() => {
-                    setActive({ ...item });
-                  }}
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  if (active.day === item.day && active.month === item.month) {
+                    setActive({ month: 0, day: 0, dayInWeek: -1 });
+                    return;
+                  }
+                  setActive({
+                    month: item.month,
+                    day: item.day,
+                    dayInWeek: index,
+                  });
+                }}
+                key={index}
+              >
+                <View
+                  style={[
+                    styles.dayCl,
+                    currDate === item.day &&
+                      item.month == month &&
+                      styles.crDay,
+                    active.day === item.day &&
+                      active.month == item.month &&
+                      {...styles.active},
+                      { width: "20%" }
+                  ]}
                 >
                   <Text
                     style={[
                       styles.calendarDay,
                       item.month != month && styles.ntCrMth,
-                      currDate === item.day &&
-                        item.month == month &&
-                        styles.crDay,
-                      active.day === item.day &&
-                        active.month == item.month &&
-                        styles.active,
                     ]}
                   >
                     {item.day}
                   </Text>
-                </TouchableWithoutFeedback>
-                <View style={styles.badgeBox}>
-                  {item.day === 29 && item.month === month && (
-                    <Badge color="blue" />
-                  )}
-                  {item.day === 12 && <Badge color="red" />}
-                  {item.day === 15 && <Badge color="green" />}
+                  <View style={styles.badgeBox}>
+                    {tasksData &&
+                      tasksData.map((task, index) => {
+                        if (
+                          task.date.day === item.day &&
+                          task.date.month === item.month &&
+                          task.date.year === year
+                        ) {
+                          return (
+                            <Badge
+                              color={task.color}
+                              type={task.type}
+                              key={index}
+                            />
+                          );
+                        }
+                      })}
+                  </View>
                 </View>
-              </View>
+              </TouchableWithoutFeedback>
             ))}
           </View>
         ))}
@@ -89,34 +121,23 @@ export default function CalendarComponent({ month, year, id }: Props) {
 
 const styles = StyleSheet.create({
   dayCl: {
-    width: "16.8%",
-    textAlign: "center",
-    textAlignVertical: "center",
-    justifyContent: "center",
-  },
-  weekDay: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  weekDaysCon: {
-    paddingTop: 3,
-    paddingBottom: 10,
-    flexDirection: "row",
-    justifyContent: "space-evenly",
+    alignItems: "center",
+    // borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "transparent",
+    paddingTop: 11,
   },
   weekCon: {
     flexDirection: "row",
-    justifyContent: "space-evenly",
+    // justifyContent: "space-evenly",
+    borderWidth: 2,
+    marginVertical: 4,
+    borderRadius: 5,
+    borderColor: "dodgerblue",
   },
   calendarDay: {
     color: "black",
-    textAlign: "center",
-    textAlignVertical: "center",
     fontSize: 16,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: "transparent",
-    paddingVertical: 4,
   },
   ntCrMth: {
     color: "grey",
@@ -128,7 +149,7 @@ const styles = StyleSheet.create({
   },
   badgeBox: {
     flexDirection: "row",
-    height: 4,
+    height: 11,
     justifyContent: "center",
     alignItems: "center",
   },

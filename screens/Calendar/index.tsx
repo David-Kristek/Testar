@@ -6,10 +6,14 @@ import { RouteProp } from "@react-navigation/native";
 import * as React from "react";
 import Calendar from "./CalendarScreen";
 import AddTask from "./AddTask";
+import { CalendarProvider } from "../../context/CalendarContext";
 
 type CalendarStackParamList = {
   CalendarScreen: undefined;
-  AddTask: undefined;
+  AddTask: {
+    subject: { index: number; title: string };
+    activeDate: DateData;
+  };
 };
 
 const Stack = createNativeStackNavigator<CalendarStackParamList>();
@@ -20,6 +24,7 @@ export type CalendarNavProps<T extends keyof CalendarStackParamList> = {
 };
 export default function CalendarApp() {
   return (
+    <CalendarProvider>
       <Stack.Navigator
       //   https://reactnavigation.org/docs/modal/#summary
       >
@@ -31,9 +36,10 @@ export default function CalendarApp() {
         <Stack.Screen
           name="AddTask"
           component={AddTask}
-          options={{ title: 'Událost' }}
-
+          options={{ title: "Událost" }}
+          initialParams={{ subject: {title: "Ajakldlas", index: 0}, activeDate: {day: 0, month: 0, year: 2021} }}
         />
       </Stack.Navigator>
+    </CalendarProvider>
   );
 }

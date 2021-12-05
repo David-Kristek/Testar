@@ -1,38 +1,101 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Expo from "expo";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, ScrollView } from "react-native";
 import Input from "../../components/Input";
 const appId = "1047121222092614";
 import Icon from "react-native-vector-icons/Ionicons";
 import Button from "../../components/Button";
 import { AuthNavProps } from "./index";
+import { AuthContext } from "../../context/AuthContext";
 export default function RegisterScreen({
   navigation,
-}: AuthNavProps <"Register">) {
-  const onLoginPress = () => {
-    // navigation.navigate("");
-  };
-  const [groupNameInput, setGroupNameInput] = useState("");
+}: AuthNavProps<"Register">) {
+  const [loading, setLoading] = useState(false);
+  const [groupInput, setGroupInput] = useState("");
   const [nameInput, setNameInput] = useState("");
+  const [emailInput, setEmailInput] = useState("");
   const [bakalariNameInput, setBakalariNameInput] = useState("");
   const [bakalariPwdInput, setBakalariPwdInput] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [groupError, setGroupError] = useState("");
+  const [bakalariError, setBakalariError] = useState("");
+  const [waitForVerify, setwaitForVerify] = useState(false);
+  const { register } = useContext(AuthContext);
+  const onRegisterPress = async () => {
+    setLoginError("");
+    setGroupError("");
+    setBakalariError("");
+    setwaitForVerify(false);
+    if (!groupInput) {
+      setGroupError("Vyplňte název skupiny");
+      return;
+    }
+    if (!nameInput || !emailInput) {
+      setLoginError("Vyplňte všechny údaje");
+      return;
+    }
+    if (!bakalariNameInput || !emailInput) {
+      setBakalariError("Vyplňte všechny údaje");
+      return;
+    }
+    setLoading(true);
+    const res = await register(
+      nameInput,
+      emailInput,
+      groupInput,
+      bakalariNameInput,
+      bakalariPwdInput
+    );
+    console.log(res);
+    if (res.groupname) {
+      setGroupError(res.groupname);
+    }
+    if (res.bakalariError) {
+      setBakalariError(res.bakalariError);
+    }
+    if (res.waitForVerify) {
+      setwaitForVerify(true);
+    }
+    setLoading(false);
+    if (res.logged) {
+      // @ts-ignore
+      navigation.navigate("Calendar", { screen: "CalendarScreen" });
+    }
+  };
+
   return (
     // <KeyboardAvoidingView style={styles.containerView} behavior="padding">
     // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View style={styles.loginScreenContainer}>
+    <ScrollView style={styles.loginScreenContainer}>
       <View style={styles.loginFormView}>
         <View style={styles.logoBox}>
           <Icon name="calendar-outline" size={30} color="black" />
           <Text style={styles.logoText}>Tesťák</Text>
         </View>
+        {waitForVerify ? (
+          <Text style={styles.alert}>
+            Nyní vám přišel email, ten ověřte, vraťte se do aplikace a klikněte
+            znovu na připojit
+          </Text>
+        ) : (
+          <></>
+        )}
         <Text style={styles.label}>Jak se bude skupina jmenovat ?</Text>
-        <Input placeholder="Jméno skupiny" set={setGroupNameInput}/>
-        <Text style={styles.label}>Vaše jméno: </Text>
-        <Input placeholder="Jméno" set={setNameInput}/>
+        {groupError ? <Text style={styles.error}>{groupError}</Text> : <></>}
+        <Input placeholder="Jméno skupiny" set={setGroupInput} />
+        <Text style={styles.label}>Vaše údaje: </Text>
+        {loginError ? <Text style={styles.error}>{loginError}</Text> : <></>}
+        <Input placeholder="Jméno" set={setNameInput} />
+        <Input placeholder="Email" set={setEmailInput} />
         <Text style={styles.label}>Vaše údaje do bakalářů: </Text>
-        <Input placeholder="Uživatelské jméno" set={setBakalariNameInput}/>
-        <Input placeholder="Heslo" set={setBakalariPwdInput}/>
-        <Button text="Připojit se" onPress={onLoginPress} loading={false} />
+        {bakalariError ? (
+          <Text style={styles.error}>{bakalariError}</Text>
+        ) : (
+          <></>
+        )}
+        <Input placeholder="Uživatelské jméno" set={setBakalariNameInput} />
+        <Input placeholder="Heslo" set={setBakalariPwdInput} />
+        <Button text="Připojit se" onPress={onRegisterPress} loading={false} />
         <Text
           style={styles.navigate}
           onPress={() => navigation.navigate("Login")}
@@ -40,7 +103,7 @@ export default function RegisterScreen({
           Chcete se připojit ke skupině ?
         </Text>
       </View>
-    </View>
+    </ScrollView>
     // </KeyboardAvoidingView>
   );
 }
@@ -73,6 +136,7 @@ const styles = StyleSheet.create({
   },
   loginFormView: {
     flex: 1,
+    marginBottom: 150,
   },
   loginFormTextInput: {
     height: 43,
@@ -99,5 +163,14 @@ const styles = StyleSheet.create({
   },
   error: {
     color: "red",
+  },
+  alert: {
+    backgroundColor: "limegreen",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    fontSize: 15,
+    borderRadius: 20,
+    color: "black",
+    textAlign: "center",
   },
 });

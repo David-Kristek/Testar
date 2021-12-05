@@ -1,22 +1,48 @@
-import React, { useState } from "react";
-import { TextInput, StyleSheet, View, Text } from "react-native";
+import React, { useContext, useState, useEffect } from "react";
+import { TextInput, StyleSheet, View, Text, ScrollView } from "react-native";
 import CheckBox from "@react-native-community/checkbox";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { CalendarNavProps } from "./";
+import { CalendarContext } from "../../context/CalendarContext";
+import ColorPicker from "react-native-wheel-color-picker";
 
 interface Props {}
 
-export default function AddTask({ navigation }: CalendarNavProps<"AddTask">) {
+export default function AddTask({
+  navigation,
+  route,
+}: CalendarNavProps<"AddTask">) {
   const [title, setTitle] = useState("");
-  const [descryption, setDescryption] = useState("");
+  const [description, setDescription] = useState("");
   const [isDUSelected, setIsDUSelected] = useState(true);
   const [isTestSelected, setIsTestSelected] = useState(false);
+  const [color, setColor] = useState("");
+  const { subject, activeDate } = route.params;
+  const { addTask } = useContext(CalendarContext);
+  const onPressHandler = async () => {
+    console.log("pressed", title);
+    if (!title) return;
+    const type = isDUSelected ? "homework" : "test";
+    console.log(type);
+
+    const res = await addTask(
+      title,
+      description,
+      type,
+      color,
+      activeDate,
+      subject
+    );
+    if (res.created) navigation.navigate("CalendarScreen");
+  };
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.badgeCon}>
-        <Text style={styles.badge}>29.5.</Text>
-        <Text style={styles.badge}>Dějepis</Text>
+        <Text style={styles.badge}>{`${activeDate.day}. ${
+          activeDate.month + 1
+        }.`}</Text>
+        <Text style={styles.badge}>{subject.title}</Text>
       </View>
       <Text style={styles.heading}>Přidat událost</Text>
       <View style={styles.checkList}>
@@ -42,21 +68,31 @@ export default function AddTask({ navigation }: CalendarNavProps<"AddTask">) {
         </View>
       </View>
       <Input set={setTitle} placeholder="Název" />
-      <Input set={setDescryption} placeholder="Popis" />
-      <Button text="Potvrdit" onPress={() => navigation.navigate("Calendar")} />
-    </View>
+      <Input set={setDescription} placeholder="Popis" />
+      <Button text="Potvrdit" onPress={onPressHandler} />
+      <View style={{ marginBottom: 20 }}></View>
+      <ColorPicker
+        // default color
+        color="#33ccff"
+        thumbSize={30}
+        sliderSize={0}
+        swatches={false}
+        onColorChangeComplete={setColor}
+      />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
+    marginTop: 10,
     paddingHorizontal: "8%",
   },
   heading: {
-    fontSize: 22,
+    fontSize: 28,
     textAlign: "center",
-    paddingBottom: 15,
+    paddingTop: 15,
+    paddingBottom: 20,
   },
   checkBoxCon: {
     flexDirection: "row",
@@ -74,7 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     textAlign: "center",
     marginBottom: 20,
-    backgroundColor: "darkblue",
+    backgroundColor: "dodgerblue",
     color: "white",
   },
   checkList: {

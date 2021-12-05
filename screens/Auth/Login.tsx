@@ -1,16 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Expo from "expo";
 import { Text, View, StyleSheet, TextInput } from "react-native";
 import Input from "../../components/Input";
 import Icon from "react-native-vector-icons/Ionicons";
 import Button from "../../components/Button";
 import { AuthNavProps } from "./index";
+import { AuthContext } from "../../context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 export default function LoginScreen({ navigation }: AuthNavProps<"Login">) {
+  const { login } = useContext(AuthContext);
+  const navCalendar = useNavigation(); /// <-- that isn't needed, you can directly use navigation prop
+  const [loading, setLoading] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [groupInput, setGroupInput] = useState("");
-  const onLoginPress = () => {
-    //  {navigation} : AppNavProps<"Auth">
-    // navigation.navigate("Home");
+  const [emailInput, setEmailInput] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [groupError, setGroupError] = useState("");
+  const [waitForVerify, setwaitForVerify] = useState(false);
+  const onLoginPress = async () => {
+    setLoginError("");
+    setGroupError("");
+    setwaitForVerify(false);
+    if (!nameInput || !emailInput) {
+      setLoginError("Vyplňte všechny údaje");
+      return;
+    }
+    if (!groupInput) {
+      setGroupError("Vyplňte název skupiny");
+      return;
+    }
+    setLoading(true);
+    const res = await login(nameInput, emailInput, groupInput);
+    console.log(res);
+    if (res.groupname) {
+      setGroupError(res.groupname);
+    }
+    if (res.waitForVerify) {
+      setwaitForVerify(true);
+    }
+    setLoading(false);
+    if (res.logged) {
+      // @ts-ignore
+      navigation.navigate("CalendarScreen");
+
+    }
   };
 
   return (
@@ -22,10 +55,20 @@ export default function LoginScreen({ navigation }: AuthNavProps<"Login">) {
           <Icon name="calendar-outline" size={30} color="black" />
           <Text style={styles.logoText}>Tesťák</Text>
         </View>
-        <Text style={styles.label}>Vaše jméno: </Text>
-        <Text style={styles.error}>Jméno je moc dlouhé!</Text>
+        {waitForVerify ? (
+          <Text style={styles.alert}>
+            Nyní vám přišel email, ten ověřte, vraťte se do aplikace a klikněte
+            znovu na připojit
+          </Text>
+        ) : (
+          <></>
+        )}
+        <Text style={styles.label}>Vaše údaje: </Text>
+        {loginError ? <Text style={styles.error}>{loginError}</Text> : <></>}
         <Input placeholder="Jméno" set={setNameInput} />
-        <Text style={styles.label}>Do jaké skupiny se chcete připojit? </Text>
+        <Input placeholder="Email" set={setEmailInput} />
+        <Text style={styles.label}>Do jaké skupiny se chcete připojit?</Text>
+        {groupError ? <Text style={styles.error}>{groupError}</Text> : <></>}
         <Input placeholder="Jméno skupiny" set={setGroupInput} />
         <Button text="Připojit se" onPress={onLoginPress} loading={false} />
         <Text
@@ -39,6 +82,7 @@ export default function LoginScreen({ navigation }: AuthNavProps<"Login">) {
     // </KeyboardAvoidingView>
   );
 }
+
 const styles = StyleSheet.create({
   navigate: {
     padding: 5,
@@ -68,6 +112,7 @@ const styles = StyleSheet.create({
   },
   loginFormView: {
     flex: 1,
+    marginBottom: 150,
   },
   loginFormTextInput: {
     height: 43,
@@ -94,5 +139,14 @@ const styles = StyleSheet.create({
   },
   error: {
     color: "red",
+  },
+  alert: {
+    backgroundColor: "limegreen",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    fontSize: 15,
+    borderRadius: 20,
+    color: "black",
+    textAlign: "center",
   },
 });

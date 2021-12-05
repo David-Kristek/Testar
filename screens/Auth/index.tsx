@@ -3,9 +3,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 
-import * as React from "react";
+import React, { useEffect, useContext, useState } from "react";
 import Login from "./Login";
 import Register from "./Register";
+import { AppNavProps } from "../../App";
+import { AuthContext } from "../../context/AuthContext";
 
 type AuthStackParamList = {
   Login: undefined;
@@ -22,7 +24,6 @@ export default function Auth() {
   const Root = createStackNavigator();
   return (
     <Stack.Navigator
-
     //   https://reactnavigation.org/docs/modal/#summary
     >
       <Stack.Screen

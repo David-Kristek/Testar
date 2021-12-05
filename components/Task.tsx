@@ -9,6 +9,7 @@ interface Props {
 }
 
 export default function Task({ title, subject, color, description }: Props) {
+  
   return (
     <View style={{ marginVertical: 20 }}>
       <View style={styles.box}>
