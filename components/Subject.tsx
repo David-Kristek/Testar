@@ -13,9 +13,10 @@ interface Props {
   selected?: boolean;
   onTouch?: (pr: any) => void;
   color?: string;
+  Room?: string; 
 }
 
-export default function Subject({ title, selected, onTouch, color }: Props) {
+export default function Subject({ title, selected, onTouch, color, Room }: Props) {
   // const textColor = Color(color, "hex").isDark() ? "white" : "white";
   return (
     <TouchableOpacity
@@ -27,7 +28,8 @@ export default function Subject({ title, selected, onTouch, color }: Props) {
       ]}
       onPress={onTouch}
     >
-      <Text style={{ fontSize: 20,  }}>{title}</Text>
+      <Text style={{ fontSize: 20  }}>{title}</Text>
+      <Text style={{ fontSize: 11, textAlign: "center"  }}>{Room ?? ""}</Text>
       {/* <Text style={{ fontSize: 20,  color: Color(color).isDark() ? "white" : "white" }}>{title}</Text> */}
     </TouchableOpacity>
   );
@@ -39,7 +41,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     textAlign: "center",
     backgroundColor: "#00A2E2",
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderColor: "white",
     borderWidth: 2,
     borderRadius: 5,

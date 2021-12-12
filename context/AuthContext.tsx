@@ -6,6 +6,8 @@ import * as SecureStore from "expo-secure-store";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { isDevice } from "expo-device";
+import { getUniqueId } from "react-native-device-info";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 type LoginParams = {
   email: string;
@@ -35,11 +37,16 @@ export const AuthContext = React.createContext<AuthContextInterface>({
 export const AuthProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);
+  const netinfo = useNetInfo();
   useEffect(() => {
     async function useEffFunc() {
       const userFromStorageString = await AsyncStorage.getItem("user");
       if (!userFromStorageString) {
         setLoading(false);
+        if (netinfo.isConnected) {
+          const curDeviceId = await getDeviceId();
+          if (!curDeviceId) await setDeviceId();
+        }
         return;
       }
       const userFromStorage = JSON.parse(userFromStorageString);
@@ -47,13 +54,13 @@ export const AuthProvider: React.FC = ({ children }) => {
       setUser(userFromStorage);
     }
     useEffFunc();
-  }, []);
+  }, [netinfo.isConnected]);
   const login = async (username: string, email: string, groupname: string) => {
     const address = await getDeviceId();
     var res;
     try {
       res = await axios({
-        url: "http://10.0.0.2:5000/auth/login",
+        url: "https://testar-server.herokuapp.com/auth/login",
         data: {
           username,
           groupname,
@@ -67,11 +74,12 @@ export const AuthProvider: React.FC = ({ children }) => {
     }
     if (!res) return false;
     if (res.data.token && res.data.user) {
-      const { token, user } = res.data;
+      const { token, user, email } = res.data;
       const userdata = {
         username: user.username,
         groupname,
         token,
+        email,
       };
       await AsyncStorage.setItem("user", JSON.stringify(userdata));
       setUser(userdata);
@@ -91,7 +99,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     var res;
     try {
       res = await axios({
-        url: "http://10.0.0.2:5000/auth/create_group",
+        url: "https://testar-server.herokuapp.com/auth/create_group",
         data: {
           username,
           groupname,
@@ -106,13 +114,14 @@ export const AuthProvider: React.FC = ({ children }) => {
       console.log(err);
     }
     if (!res) return false;
-    console.log(res.data);
+    // console.log(res.data);
     if (res.data.token && res.data.user) {
-      const { token, user } = res.data;
+      const { token, user, email } = res.data;
       const userdata = {
         username: user.username,
         groupname,
         token,
+        email,
       };
       await AsyncStorage.setItem("user", JSON.stringify(userdata));
       setUser(userdata);
@@ -122,13 +131,15 @@ export const AuthProvider: React.FC = ({ children }) => {
   };
 
   const getDeviceId = async () => {
-    console.log(isDevice, "device");
-    if (isDevice) return "emulator";
-    let uuid = uuidv4();
-    await SecureStore.setItemAsync("secure_deviceid", JSON.stringify(uuid));
     let fetchUUID = await SecureStore.getItemAsync("secure_deviceid");
+    // console.log(fetchUUID, "uuuiiid");
     return fetchUUID;
   };
+  const setDeviceId = async () => {
+    let uuid = uuidv4();
+    await SecureStore.setItemAsync("secure_deviceid", JSON.stringify(uuid));
+  };
+
   return (
     <AuthContext.Provider
       value={{

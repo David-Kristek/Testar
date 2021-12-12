@@ -6,6 +6,7 @@ import Input from "../../components/Input";
 import { CalendarNavProps } from "./";
 import { CalendarContext } from "../../context/CalendarContext";
 import ColorPicker from "react-native-wheel-color-picker";
+import { AuthContext } from "../../context/AuthContext";
 
 interface Props {}
 
@@ -20,21 +21,27 @@ export default function AddTask({
   const [color, setColor] = useState("");
   const { subject, activeDate } = route.params;
   const { addTask } = useContext(CalendarContext);
+  const { user } = useContext(AuthContext);
   const onPressHandler = async () => {
     console.log("pressed", title);
     if (!title) return;
     const type = isDUSelected ? "homework" : "test";
     console.log(type);
 
-    const res = await addTask(
+    await addTask({
+      _id: "",
       title,
       description,
       type,
-      color,
-      activeDate,
-      subject
-    );
-    if (res.created) navigation.navigate("CalendarScreen");
+      date: activeDate,
+      subject: {
+        title: subject.title,
+        index: subject.index,
+        color,
+      },
+      createdByUser: user ?? { username: "", email: "" },
+    });
+    navigation.navigate("CalendarScreen");
   };
   return (
     <ScrollView style={styles.container}>

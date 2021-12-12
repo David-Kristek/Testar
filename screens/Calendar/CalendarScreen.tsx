@@ -27,13 +27,12 @@ export default function Calendar({
 }: CalendarNavProps<"CalendarScreen">) {
   const date = new Date();
   const [month, setMonth] = useState(date.getMonth());
-  const [year, setYear] = useState(date.getFullYear());
-  const [active, setActive] = useState({ month: 0, day: 0, dayInWeek: 0 });
+  const year = useRef({ count: date.getFullYear() });
+  const [active, setActive] = useState({ month: month, day: 0, dayInWeek: 0 });
   const screenWidth = Dimensions.get("window").width;
   const flatListRef = useRef<FlatList>(null);
-  const { timeTableData, tasksData } = useContext(CalendarContext);
-  // console.log(timeTableData && active.dayInWeek !== -1);
-
+  const { timeTableData, tasksData, callRefresh } = useContext(CalendarContext);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeSubject, setActiveSubject] = useState({
     index: 0,
     title: "",
@@ -49,31 +48,39 @@ export default function Calendar({
     {
       id: 0,
       month,
-      year,
+      year: year.current.count,
     },
     {
       id: 1,
       month,
-      year,
+      year: year.current.count,
     },
     {
       id: 2,
       month,
-      year,
+      year: year.current.count,
     },
   ];
+  const refreshHandler = () => {
+    setRefreshing(true);
+    callRefresh();
+    setTimeout(() => {
+      setRefreshing(false);
+    });
+  };
   const nextMonth = () => {
     setMonth((month: number) => {
       if (month === 11) {
-        setYear((cr) => cr + 1);
+        year.current.count += 1;
         return 0;
       } else return month + 1;
     });
   };
   const previousMonth = () => {
+    // console.log(year);
     setMonth((month: number) => {
       if (month === 0) {
-        setYear((cr) => cr - 1);
+        year.current.count -= 1;
         return 11;
       } else return month - 1;
     });
@@ -86,14 +93,15 @@ export default function Calendar({
         setTimeout(() => {
           flatListRef.current?.scrollToIndex({ animated: false, index: 1 });
         }, 20);
+        setActive({ month: 0, day: 0, dayInWeek: -1 });
       } else if (item.viewableItems[0]?.index === 2) {
         // console.log("next", !!flatListRef.current);
         nextMonth();
         setTimeout(() => {
           flatListRef.current?.scrollToIndex({ animated: false, index: 1 });
         }, 50);
+        setActive({ month: 0, day: 0, dayInWeek: -1 });
       }
-      setActive({ month: 0, day: 0, dayInWeek: -1 });
     }
   }, []);
   const renderItem = ({ item }: any) => {
@@ -116,7 +124,7 @@ export default function Calendar({
         <View style={styles.row}>
           <Text
             style={styles.month}
-          >{`${year} ${data.months[month].name}`}</Text>
+          >{`${year.current.count} ${data.months[month].name}`}</Text>
         </View>
         <TouchableOpacity>
           <Icon name="ellipsis-v" size={30} />
@@ -148,6 +156,8 @@ export default function Calendar({
               minimumViewTime: 150,
               itemVisiblePercentThreshold: 10,
             }}
+            onRefresh={refreshHandler}
+            refreshing={refreshing}
           />
         </View>
         <View style={[styles.row, { marginTop: 20, flexWrap: "wrap" }]}>
@@ -163,6 +173,7 @@ export default function Calendar({
                   title={item.subject.Abbrev}
                   selected={index === activeSubject.index}
                   onTouch={onPressHandler}
+                  Room={item.room}
                   key={index}
                 />
               );
@@ -179,8 +190,10 @@ export default function Calendar({
                 <Task
                   title={task.title}
                   subject={task.subject.title}
-                  color={task.color}
+                  color={task.subject.color}
+                  description={task.description}
                   key={index}
+                  id={task._id}
                 />
               );
             }
@@ -191,7 +204,11 @@ export default function Calendar({
             onPress={() => {
               navigation.navigate("AddTask", {
                 subject: activeSubject,
-                activeDate: { day: active.day, month: month, year },
+                activeDate: {
+                  day: active.day,
+                  month: month,
+                  year: year.current.count,
+                },
               });
             }}
           >

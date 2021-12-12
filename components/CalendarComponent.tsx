@@ -9,9 +9,10 @@ import {
 } from "react-native";
 import Badge from "../components/Badge";
 import { CalendarContext } from "../context/CalendarContext";
+
 export interface Props {
   month: number;
-  year: number;
+  year: any;
   id: number;
   active: { month: number; day: number; dayInWeek: number };
   setActive: (param: { month: number; day: number; dayInWeek: number }) => void;
@@ -34,6 +35,7 @@ export default function CalendarComponent({
         : 0,
     [month, year]
   );
+
   const nextMonthNumber = month === 11 ? 0 : month + 1;
   const prevMonthNumber = month === 0 ? 11 : month - 1;
   const numberOfShownMonth =
@@ -48,10 +50,8 @@ export default function CalendarComponent({
     numberOfShownYear,
     numberOfShownMonth
   );
+
   const { tasksData } = useContext(CalendarContext);
-  useEffect(() => {
-    setActive({ month: 0, day: 0, dayInWeek: -1 });
-  }, []);
   return (
     <>
       {calendarData &&
@@ -79,9 +79,8 @@ export default function CalendarComponent({
                       item.month == month &&
                       styles.crDay,
                     active.day === item.day &&
-                      active.month == item.month &&
-                      {...styles.active},
-                      { width: "20%" }
+                      active.month == item.month && { ...styles.active },
+                    { width: "20%" },
                   ]}
                 >
                   <Text
@@ -102,7 +101,7 @@ export default function CalendarComponent({
                         ) {
                           return (
                             <Badge
-                              color={task.color}
+                              color={task.subject.color}
                               type={task.type}
                               key={index}
                             />
@@ -154,6 +153,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   active: {
-    borderColor: "darkblue",
+    // borderColor: "darkblue",
+    backgroundColor: "#00eae9",
   },
 });

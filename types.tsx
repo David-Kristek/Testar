@@ -9,6 +9,7 @@ declare global {
     username: string;
     groupname: string;
     token: string;
+    email: string;
   };
   type OtherUser = {
     username: string;
@@ -28,17 +29,20 @@ declare global {
       Abbrev: string;
       Name: string;
     };
+    room: string;
   };
   type Task = {
     title: string;
     subject: {
       title: string;
       color: string;
+      index?: number;
     };
     date: DateData;
-    color: string;
     createdByUser: OtherUser;
     type: "homework" | "test";
+    description: string;
+    _id: string;
   };
 }
 
