@@ -39,6 +39,7 @@ export const CalendarProvider: React.FC = ({ children }) => {
       );
       if (calendarDataFromStrorage) {
         const calendarData = JSON.parse(calendarDataFromStrorage);
+        console.log(calendarData.tasks);
         setTimeTableData(calendarData.timetable);
         setTasksData(calendarData.tasks);
         setLoading(false);
@@ -53,6 +54,7 @@ export const CalendarProvider: React.FC = ({ children }) => {
             "calendardata",
             JSON.stringify(calendarData)
           );
+
           setLoading(false);
           // resolve offline requests:
           const offlineRequestsString = await AsyncStorage.getItem(
@@ -62,12 +64,17 @@ export const CalendarProvider: React.FC = ({ children }) => {
             const offlineRequests = JSON.parse(offlineRequestsString);
             if (offlineRequests) {
               offlineRequests.forEach((request: any) => {
-                switch (request.key) {
-                  case "addtask":
-                    addTask(request.newTask);
+                switch (true) {
+                  case !!request.addtask:
+                    console.log("adding task from offline");
+                    addTask(request.addtask);
                     break;
-                  case "deletetask":
-                    deleteTask(request.id);
+                  case !!request.deletetask:
+                    console.log("deleting task from offline");
+                    deleteTask(request.deletetask);
+                    break; 
+                  default:
+                    console.log("nope");
                 }
                 AsyncStorage.setItem("offlineRequests", "");
               });
@@ -78,7 +85,7 @@ export const CalendarProvider: React.FC = ({ children }) => {
       // setLoading(false);
     }
     useEffFunc();
-  }, [netInfo.isConnected , refresh]);
+  }, [netInfo.isConnected, refresh]);
   const getCalendarData = async () => {
     var res;
     try {
@@ -122,8 +129,9 @@ export const CalendarProvider: React.FC = ({ children }) => {
     ) {
       newTasksData = tasksData ? [...tasksData, newTask] : null;
       setTasksData(newTasksData);
+
       await AsyncStorage.setItem(
-        "calendarData",
+        "calendardata",
         JSON.stringify({ timeTableData, tasks: newTasksData })
       );
     }
@@ -149,28 +157,28 @@ export const CalendarProvider: React.FC = ({ children }) => {
       : [];
     setTasksData(newTasksData);
     await AsyncStorage.setItem(
-      "calendarData",
+      "calendardata",
       JSON.stringify({ timeTableData, tasks: newTasksData })
     );
   };
   const addToOffline = async (key: string, toStore: any) => {
     if (!netInfo.isConnected) {
-      const offlineRequestsString = await AsyncStorage.getItem(
-        "offlineRequests"
-      );
-      var offlineRequests = [];
-      if (offlineRequestsString)
-        offlineRequests = JSON.parse(offlineRequestsString);
-      await AsyncStorage.setItem(
-        "offlineRequests",
-        JSON.stringify(offlineRequests.push({ [key]: toStore }))
-      );
+    const offlineRequestsString = await AsyncStorage.getItem("offlineRequests");
+    var offlineRequests = [];
+    if (offlineRequestsString)
+      offlineRequests = JSON.parse(offlineRequestsString);
+    offlineRequests.push({ [key]: toStore });
+    console.log(offlineRequests);
+    await AsyncStorage.setItem(
+      "offlineRequests",
+      JSON.stringify(offlineRequests)
+    );
     }
   };
   const callRefresh = () => {
-    setRefresh(cur => !cur)
-  }
-  return ( 
+    setRefresh((cur) => !cur);
+  };
+  return (
     <CalendarContext.Provider
       value={{
         timeTableData,
@@ -178,7 +186,7 @@ export const CalendarProvider: React.FC = ({ children }) => {
         loading,
         addTask,
         deleteTask,
-        callRefresh
+        callRefresh,
       }}
     >
       {children}

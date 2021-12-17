@@ -5,10 +5,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
-import { isDevice } from "expo-device";
-import { getUniqueId } from "react-native-device-info";
 import { useNetInfo } from "@react-native-community/netinfo";
-
 type LoginParams = {
   email: string;
   password: string;
@@ -39,7 +36,7 @@ export const AuthProvider: React.FC = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const netinfo = useNetInfo();
   useEffect(() => {
-    async function useEffFunc() {
+    async function useEffFunc() {      
       const userFromStorageString = await AsyncStorage.getItem("user");
       if (!userFromStorageString) {
         setLoading(false);
