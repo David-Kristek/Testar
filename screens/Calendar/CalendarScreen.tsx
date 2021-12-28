@@ -22,26 +22,33 @@ import Subject from "../../components/Subject";
 import Task from "../../components/Task";
 import CalendarComponent from "../../components/CalendarComponent";
 import { CalendarContext } from "../../context/CalendarContext";
+import SideMenu from "../../components/SideMenu";
 export default function Calendar({
   navigation,
 }: CalendarNavProps<"CalendarScreen">) {
   const date = new Date();
   const [month, setMonth] = useState(date.getMonth());
-  const year = useRef({ count: date.getFullYear() });
-  const [active, setActive] = useState({ month: month, day: 0, dayInWeek: 0 });
-  const screenWidth = Dimensions.get("window").width;
-  const flatListRef = useRef<FlatList>(null);
-  const { timeTableData, tasksData, callRefresh } = useContext(CalendarContext);
+  const [active, setActive] = useState({
+    month: month,
+    day: 0,
+    dayInWeek: date.getDay(),
+  });
   const [refreshing, setRefreshing] = useState(false);
   const [activeSubject, setActiveSubject] = useState({
     index: 0,
     title: "",
   });
+  const year = useRef({ count: date.getFullYear() });
+  const screenWidth = Dimensions.get("window").width;
+  const flatListRef = useRef<FlatList>(null);
+  const { timeTableData, tasksData, callRefresh } = useContext(CalendarContext);
   useEffect(() => {
     if (timeTableData && active.dayInWeek !== -1)
       setActiveSubject({
         index: 0,
-        title: timeTableData[active.dayInWeek][0].subject.Name,
+        title: timeTableData[active.dayInWeek]
+          ? timeTableData[active.dayInWeek][0].subject.Name
+          : "",
       });
   }, [active]);
   const DATA = [
@@ -114,6 +121,7 @@ export default function Calendar({
           id={item.id}
           active={active}
           setActive={setActive}
+          key={item.id}
         />
       </View>
     );
@@ -123,12 +131,10 @@ export default function Calendar({
       <Header btw>
         <View style={styles.row}>
           <Text
-            style={styles.month}
+            style={[styles.month, { paddingTop: 50 }]}
           >{`${year.current.count} ${data.months[month].name}`}</Text>
         </View>
-        <TouchableOpacity>
-          <Icon name="ellipsis-v" size={30} />
-        </TouchableOpacity>
+        <SideMenu />
       </Header>
       <View style={styles.container}>
         <View>
@@ -147,6 +153,7 @@ export default function Calendar({
             keyExtractor={(item) => String(item.id)}
             snapToAlignment={"center"}
             snapToInterval={screenWidth * 0.84}
+            decelerationRate={"fast"}
             showsHorizontalScrollIndicator={false}
             onViewableItemsChanged={_onViewableItemsChanged}
             pagingEnabled={true}
@@ -163,6 +170,7 @@ export default function Calendar({
         <View style={[styles.row, { marginTop: 20, flexWrap: "wrap" }]}>
           {timeTableData &&
             active.dayInWeek !== -1 &&
+            timeTableData[active.dayInWeek] &&
             timeTableData[active.dayInWeek].map((item, index) => {
               const onPressHandler = () => {
                 setActiveSubject({ index, title: item.subject.Name });
@@ -186,16 +194,20 @@ export default function Calendar({
               task.date.month === active.month
               //  && task.date.year === year
             ) {
-              return (
-                <Task
-                  title={task.title}
-                  subject={task.subject.title}
-                  color={task.subject.color}
-                  description={task.description}
-                  key={index}
-                  id={task._id}
-                />
-              );
+              if (task.type !== "progress")
+                return (
+                  <Task
+                    title={task.title}
+                    subject={task.subject.title}
+                    color={task.subject.color}
+                    description={task.description}
+                    key={index}
+                    id={task._id}
+                  />
+                );
+              else {
+                return <></>;
+              }
             }
           })}
         {activeSubject.title && active.dayInWeek !== -1 ? (
@@ -228,8 +240,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    marginHorizontal: "8%",
-    // backgroundColor: "rgb(204, 204, 204)",
+    paddingHorizontal: "8%",
+    paddingTop: 25,
+    backgroundColor: "rgb(236, 236, 236)",
   },
   title: {
     fontSize: 20,
@@ -295,7 +308,7 @@ const styles = StyleSheet.create({
     backgroundColor: "dodgerblue",
     position: "absolute",
     bottom: 25,
-    right: 0,
+    right: "8%",
   },
   arrowCon: {
     flexDirection: "row",

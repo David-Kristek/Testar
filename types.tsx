@@ -5,7 +5,7 @@ declare global {
   // namespace ReactNavigation {
   //   interface RootParamList extends RootStackParamList {}
   // }
-  type User = null | {
+  type User = {
     username: string;
     groupname: string;
     token: string;
@@ -40,10 +40,11 @@ declare global {
     };
     date: DateData;
     createdByUser: OtherUser;
-    type: "homework" | "test";
+    type: TaskType;
     description: string;
     _id: string;
   };
+  type TaskType = "homework" | "test" | "progress";
 }
 
 // export type RootStackParamList = {

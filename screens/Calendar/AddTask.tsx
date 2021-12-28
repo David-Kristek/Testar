@@ -6,7 +6,9 @@ import Input from "../../components/Input";
 import { CalendarNavProps } from "./";
 import { CalendarContext } from "../../context/CalendarContext";
 import ColorPicker from "react-native-wheel-color-picker";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/Auth/AuthContext";
+import { SocketContext } from "../../context/SocketContext";
+import { NavigationEvents } from "react-navigation";
 
 interface Props {}
 
@@ -18,16 +20,14 @@ export default function AddTask({
   const [description, setDescription] = useState("");
   const [isDUSelected, setIsDUSelected] = useState(true);
   const [isTestSelected, setIsTestSelected] = useState(false);
-  const [color, setColor] = useState("");
+  const [color, setColor] = useState("#FFFFFF");
   const { subject, activeDate } = route.params;
-  const { addTask } = useContext(CalendarContext);
+  const { addTask, getSubject } = useContext(CalendarContext);
   const { user } = useContext(AuthContext);
+  const { socket } = useContext(SocketContext);
   const onPressHandler = async () => {
-    console.log("pressed", title);
     if (!title) return;
     const type = isDUSelected ? "homework" : "test";
-    console.log(type);
-
     await addTask({
       _id: "",
       title,
@@ -43,6 +43,14 @@ export default function AddTask({
     });
     navigation.navigate("CalendarScreen");
   };
+  useEffect(() => {
+    navigation.addListener("beforeRemove", () => {
+      socket?.emit("addingTaskOver", activeDate, user)
+    });    
+    getSubject(subject.title, activeDate).then((res) => {
+      if (res.color) setColor(res.color);
+    });
+  }, []);
   return (
     <ScrollView style={styles.container}>
       <View style={styles.badgeCon}>
@@ -80,7 +88,7 @@ export default function AddTask({
       <View style={{ marginBottom: 20 }}></View>
       <ColorPicker
         // default color
-        color="#33ccff"
+        color={color}
         thumbSize={30}
         sliderSize={0}
         swatches={false}

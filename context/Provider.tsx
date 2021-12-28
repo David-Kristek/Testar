@@ -3,17 +3,17 @@ import { NavigationContainer } from "@react-navigation/native";
 
 import Auth from "../screens/Auth";
 import Calendar from "../screens/Calendar";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "./Auth/AuthContext";
 import { MenuProvider } from "react-native-popup-menu";
-
+import { useAppSelector } from "../hooks/ReduxHooks";
 export default function Provider() {
-  const { user, loading } = useContext(AuthContext);
+  const { logged } = useAppSelector((state) => state.auth);
 
   return (
-    <MenuProvider>
-      <NavigationContainer>
-        {loading ? <></> : user ? <Calendar /> : <Auth />}
-      </NavigationContainer>
-    </MenuProvider>
+      <MenuProvider>
+        <NavigationContainer>
+          {logged ? <Calendar /> : <Auth />}
+        </NavigationContainer>
+      </MenuProvider>
   );
 }

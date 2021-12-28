@@ -2,8 +2,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import React, { useState, useEffect, useContext } from "react";
 import { HsvColor } from "react-native-color-picker/dist/typeHelpers";
-import { AuthContext } from "./AuthContext";
+import { AuthContext } from "./Auth/AuthContext";
 import { useNetInfo } from "@react-native-community/netinfo";
+import { SocketContext } from "./SocketContext";
 
 interface CalendarContextInterface {
   timeTableData: TimeTable[][] | null;
@@ -11,6 +12,7 @@ interface CalendarContextInterface {
   loading: boolean;
   addTask: (task: Task) => Promise<any>;
   deleteTask: (id: string) => Promise<any>;
+  getSubject: (title: string, date: DateData) => Promise<any>;
   callRefresh: () => void;
 }
 
@@ -20,6 +22,7 @@ export const CalendarContext = React.createContext<CalendarContextInterface>({
   loading: false,
   addTask: async () => {},
   deleteTask: async () => {},
+  getSubject: async () => {},
   callRefresh: () => {},
 });
 
@@ -30,8 +33,9 @@ export const CalendarProvider: React.FC = ({ children }) => {
   const netInfo = useNetInfo();
   const [tasksData, setTasksData] = useState<Task[] | null>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(AuthContext);
   const [refresh, setRefresh] = useState(false);
+  const { user } = useContext(AuthContext);
+  const { socket } = useContext(SocketContext);
   useEffect(() => {
     async function useEffFunc() {
       const calendarDataFromStrorage = await AsyncStorage.getItem(
@@ -39,7 +43,6 @@ export const CalendarProvider: React.FC = ({ children }) => {
       );
       if (calendarDataFromStrorage) {
         const calendarData = JSON.parse(calendarDataFromStrorage);
-        console.log(calendarData.tasks);
         setTimeTableData(calendarData.timetable);
         setTasksData(calendarData.tasks);
         setLoading(false);
@@ -72,7 +75,7 @@ export const CalendarProvider: React.FC = ({ children }) => {
                   case !!request.deletetask:
                     console.log("deleting task from offline");
                     deleteTask(request.deletetask);
-                    break; 
+                    break;
                   default:
                     console.log("nope");
                 }
@@ -85,6 +88,12 @@ export const CalendarProvider: React.FC = ({ children }) => {
       // setLoading(false);
     }
     useEffFunc();
+    setSockets();
+    return () => {
+      socket?.off("addingTask"); 
+      socket?.off("addingTaskOver"); 
+      socket?.off("taskAdded"); 
+    }
   }, [netInfo.isConnected, refresh]);
   const getCalendarData = async () => {
     var res;
@@ -117,6 +126,7 @@ export const CalendarProvider: React.FC = ({ children }) => {
         console.log(err);
       }
     }
+    console.log(res?.data);
     addToOffline("addtask", newTask);
     var newTasksData;
     if (
@@ -163,20 +173,81 @@ export const CalendarProvider: React.FC = ({ children }) => {
   };
   const addToOffline = async (key: string, toStore: any) => {
     if (!netInfo.isConnected) {
-    const offlineRequestsString = await AsyncStorage.getItem("offlineRequests");
-    var offlineRequests = [];
-    if (offlineRequestsString)
-      offlineRequests = JSON.parse(offlineRequestsString);
-    offlineRequests.push({ [key]: toStore });
-    console.log(offlineRequests);
-    await AsyncStorage.setItem(
-      "offlineRequests",
-      JSON.stringify(offlineRequests)
-    );
+      const offlineRequestsString = await AsyncStorage.getItem(
+        "offlineRequests"
+      );
+      var offlineRequests = [];
+      if (offlineRequestsString)
+        offlineRequests = JSON.parse(offlineRequestsString);
+      offlineRequests.push({ [key]: toStore });
+      await AsyncStorage.setItem(
+        "offlineRequests",
+        JSON.stringify(offlineRequests)
+      );
     }
   };
   const callRefresh = () => {
     setRefresh((cur) => !cur);
+  };
+  const getSubject = async (title: string, date: DateData) => {
+    var res;
+    try {
+      res = await axios(`http://10.0.0.2:5000/calendar/get_subject`, {
+        method: "POST",
+        headers: {
+          token: user?.token ?? "",
+        },
+        data: {
+          title,
+          date,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+    return res?.data;
+  };
+  const setSockets = () => {
+    socket?.on("test", (testVal => {
+      console.log(testVal);
+      
+    }))
+    socket?.on("addingTask", (dateData: DateData, userS: OtherUser) => {
+      console.log("adding task", userS.email, dateData, "logged by" , user?.email);
+      setTasksData((currTasks) => {
+        const type: TaskType = "progress";
+        const newTask = {
+          title: "",
+          subject: {
+            title: "",
+            color: "",
+            index: 0,
+          },
+          date: dateData,
+          createdByUser: userS,
+          type,
+          description: "",
+          _id: "",
+        };
+        return currTasks ? [...currTasks, newTask] : [newTask];
+      });
+    });
+    
+    socket?.on("addingTaskOver", (dateData: DateData, userS: OtherUser) => {
+      console.log("adding task over", userS.email, dateData, "logged by" , user?.email);
+      setTasksData((currTasks) =>
+        currTasks
+          ? currTasks.filter(
+              (task) =>
+                task.createdByUser.email !== userS.email &&
+                task.date !== dateData
+            )
+          : null
+      );
+    });
+    socket?.on("taskAdded", (task: Task) => {
+      setTasksData((currTasks) => (currTasks ? [...currTasks, task] : [task]));
+    });
   };
   return (
     <CalendarContext.Provider
@@ -186,6 +257,7 @@ export const CalendarProvider: React.FC = ({ children }) => {
         loading,
         addTask,
         deleteTask,
+        getSubject,
         callRefresh,
       }}
     >

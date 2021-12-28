@@ -1,11 +1,12 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import {
   TextInput,
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
+  Animated,
   Dimensions,
+  Image,
 } from "react-native";
 // your entry point
 import {
@@ -16,7 +17,7 @@ import {
 } from "react-native-popup-menu";
 import { CalendarContext } from "../context/CalendarContext";
 import Icon from "react-native-vector-icons/AntDesign";
-
+import Button from "./Button";
 interface Props {
   title: string;
   subject: string;
@@ -34,23 +35,68 @@ export default function Task({
 }: Props) {
   const [height, setHeight] = React.useState(0);
   const { deleteTask } = useContext(CalendarContext);
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    animatedValue.setValue(0);
+    Animated.timing(animatedValue, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: false,
+    }).start();
+  }, []);
+  const deleteHandler = () => {
+    deleteTask(id);
+    Animated.timing(animatedValue, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: false,
+    }).start();
+  };
   return (
     <>
-      <Menu style={{ marginTop: 20 }}>
+      <Menu style={{ marginTop: 20, position: "relative" }}>
         <MenuTrigger triggerOnLongPress>
-          <View style={styles.box}>
-            <Text style={{ fontSize: 20 }}>{title}</Text>
-            <Text style={{ fontSize: 16 }}>{subject}</Text>
-          </View>
-          {description ? (
-            <Text style={{ fontSize: 14, paddingBottom: 5 }}>
-              {description}
-            </Text>
-          ) : (
-            <></>
-          )}
+          <Animated.View
+            style={[
+              styles.taskBox,
+              {
+                backgroundColor: color,
+                transform: [
+                  {
+                    scale: animatedValue.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.9, 1],
+                    }),
+                  },
+                ],
+                opacity: animatedValue.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.5, 1],
+                }),
+              },
+            ]}
+          >
+            <Image
+              source={require("../assets/screenimages/pin.png")}
+              style={styles.pin}
+            />
+
+            <View style={styles.box}>
+              <View>
+                <Text style={{ fontSize: 20 }}>{title}</Text>
+              </View>
+              <Text style={styles.subject}>{subject}</Text>
+            </View>
+            {description ? (
+              <Text style={{ fontSize: 14, paddingBottom: 5 }}>
+                {description}
+              </Text>
+            ) : (
+              <></>
+            )}
+          </Animated.View>
         </MenuTrigger>
-        <View style={[styles.underline, { backgroundColor: color }]}></View>
+        {/* <View style={[styles.underline, { backgroundColor: color }]}></View> */}
         <MenuOptions
           customStyles={{
             optionsContainer: {
@@ -61,7 +107,7 @@ export default function Task({
           }}
         >
           <MenuOption
-            onSelect={() => deleteTask(id)}
+            onSelect={deleteHandler}
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
             <Text style={{ color: "red" }}>Odstranit</Text>
@@ -73,14 +119,44 @@ export default function Task({
   );
 }
 const styles = StyleSheet.create({
+  taskBox: {
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderTopRightRadius: 0,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
+    shadowOpacity: 0.43,
+    shadowRadius: 9.51,
+    elevation: 15,
+  },
   box: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-end",
+    alignItems: "center",
     paddingVertical: 5,
+    flexWrap: "wrap",
   },
   underline: {
     width: "100%",
     height: 3,
+  },
+  pin: {
+    width: 25,
+    height: 25,
+    position: "absolute",
+    right: -10,
+    top: -12,
+  },
+  subject: {
+    fontSize: 14,
+    padding: 6,
+    textAlign: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    color: "black",
+    borderRadius: 8,
   },
 });

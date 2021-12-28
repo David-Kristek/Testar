@@ -6,7 +6,10 @@ const appId = "1047121222092614";
 import Icon from "react-native-vector-icons/Ionicons";
 import Button from "../../components/Button";
 import { AuthNavProps } from "./index";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/Auth/AuthContext";
+import styles from "./style";
+import { useAppDispatch } from "../../hooks/ReduxHooks";
+import { register } from "../../redux/actions/auth";
 export default function RegisterScreen({
   navigation,
 }: AuthNavProps<"Register">) {
@@ -20,8 +23,10 @@ export default function RegisterScreen({
   const [groupError, setGroupError] = useState("");
   const [bakalariError, setBakalariError] = useState("");
   const [waitForVerify, setwaitForVerify] = useState(false);
-  const { register } = useContext(AuthContext);
-  const onRegisterPress = async () => {
+
+  const dispatch = useAppDispatch();
+
+  const onRegisterPress = () => {
     setLoginError("");
     setGroupError("");
     setBakalariError("");
@@ -39,28 +44,34 @@ export default function RegisterScreen({
       return;
     }
     setLoading(true);
-    const res = await register(
-      nameInput,
-      emailInput,
-      groupInput,
-      bakalariNameInput,
-      bakalariPwdInput
-    );
-    console.log(res);
-    if (res.groupname) {
-      setGroupError(res.groupname);
-    }
-    if (res.bakalariError) {
-      setBakalariError(res.bakalariError);
-    }
-    if (res.waitForVerify) {
-      setwaitForVerify(true);
-    }
-    setLoading(false);
-    if (res.logged) {
-      // @ts-ignore
-      navigation.navigate("Calendar", { screen: "CalendarScreen" });
-    }
+    dispatch(
+      register({
+        username: nameInput,
+        email: emailInput,
+        groupname: groupInput,
+        bakalariusername: bakalariNameInput,
+        bakalaripassword: bakalariPwdInput,
+      })
+    )
+      .then((res) => {
+        setLoading(false);
+        if (res.waitForVerify) {
+          setwaitForVerify(true);
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err);
+        if (err.groupname) {
+          setGroupError(err.groupname);
+        }
+        if (err.bakalariError) {
+          setBakalariError(err.bakalariError);
+        }
+        if (typeof err === "string") {
+          setLoginError(err);
+        }
+      });
   };
 
   return (
@@ -107,70 +118,3 @@ export default function RegisterScreen({
     // </KeyboardAvoidingView>
   );
 }
-const styles = StyleSheet.create({
-  navigate: {
-    padding: 5,
-    paddingTop: 8,
-    color: "blue",
-    textDecorationLine: "underline",
-  },
-  loginScreenContainer: {
-    flex: 1,
-    height: "100%",
-    padding: "10%",
-    paddingVertical: "30%",
-    // justifyContent: "center"
-  },
-  logoBox: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: "10%",
-    paddingBottom: "3%",
-  },
-  logoText: {
-    fontSize: 40,
-    fontWeight: "800",
-    paddingLeft: 10,
-  },
-  loginFormView: {
-    flex: 1,
-    marginBottom: 150,
-  },
-  loginFormTextInput: {
-    height: 43,
-    fontSize: 14,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#eaeaea",
-    backgroundColor: "#fafafa",
-    paddingLeft: 10,
-    marginLeft: 15,
-    marginRight: 15,
-    marginTop: 5,
-    marginBottom: 5,
-  },
-  loginButton: {
-    backgroundColor: "#3897f1",
-    borderRadius: 5,
-    height: 45,
-    marginTop: 10,
-  },
-  label: {
-    fontSize: 16,
-    paddingTop: 10,
-  },
-  error: {
-    color: "red",
-  },
-  alert: {
-    backgroundColor: "limegreen",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    fontSize: 15,
-    borderRadius: 20,
-    color: "black",
-    textAlign: "center",
-  },
-});

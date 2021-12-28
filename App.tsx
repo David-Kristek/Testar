@@ -1,12 +1,13 @@
 import React from "react";
 import { Text } from "react-native";
-import { AuthProvider } from "./context/AuthContext";
 import Provider from "./context/Provider";
+import { Provider as ReduxProvider } from "react-redux";
+import store from "./store";
 
 export default function App() {
   return (
-    <AuthProvider>
+    <ReduxProvider store={store}>
       <Provider />
-    </AuthProvider>
+    </ReduxProvider>
   );
 }

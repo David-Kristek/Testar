@@ -6,8 +6,7 @@ import { RouteProp } from "@react-navigation/native";
 import React, { useEffect, useContext, useState } from "react";
 import Login from "./Login";
 import Register from "./Register";
-import { AppNavProps } from "../../App";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 type AuthStackParamList = {
   Login: undefined;

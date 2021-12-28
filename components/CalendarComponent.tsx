@@ -1,6 +1,5 @@
-import React, { useMemo, useRef, useEffect, useContext } from "react";
+import React, { useMemo, useRef, useEffect, useContext, useState } from "react";
 import {
-  TextInput,
   StyleSheet,
   View,
   Text,
@@ -26,7 +25,6 @@ export default function CalendarComponent({
   active,
   setActive,
 }: Props) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
   const date = new Date();
   const currDate = useMemo(
     () =>
@@ -52,11 +50,27 @@ export default function CalendarComponent({
   );
 
   const { tasksData } = useContext(CalendarContext);
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    // animatedValue.setValue(0);
+    // console.log("happend--+");
+    // Animated.timing(animatedValue, {
+    //   toValue: 1,
+    //   useNativeDriver: false,
+    //   duration: 500,
+    // }).start();    }
+  }, [active]);
   return (
     <>
       {calendarData &&
         calendarData.map((item, index) => (
-          <View style={styles.weekCon} key={index}>
+          <View
+            style={[
+              styles.weekCon,
+              calendarData.length - 2 < index && { borderBottomWidth: 0 },
+            ]}
+            key={index}
+          >
             {item.map((item, index) => (
               <TouchableWithoutFeedback
                 onPress={() => {
@@ -72,15 +86,26 @@ export default function CalendarComponent({
                 }}
                 key={index}
               >
-                <View
+                <Animated.View
                   style={[
                     styles.dayCl,
                     currDate === item.day &&
                       item.month == month &&
                       styles.crDay,
                     active.day === item.day &&
-                      active.month == item.month && { ...styles.active },
-                    { width: "20%" },
+                      active.month == item.month && [
+                        styles.active,
+                        {
+                          // backgroundColor: animatedValue.interpolate({
+                          //   inputRange: [0, 1],
+                          //   outputRange: [
+                          //     "rgba(255, 255, 255, 1)",
+                          //     "rgba(30, 144, 255, 1)",
+                          //   ],
+                          // }),
+                          // opacity: animatedValue,
+                        },
+                      ],
                   ]}
                 >
                   <Text
@@ -91,8 +116,10 @@ export default function CalendarComponent({
                   >
                     {item.day}
                   </Text>
+
                   <View style={styles.badgeBox}>
-                    {tasksData &&
+                    {id === 1 &&
+                      tasksData &&
                       tasksData.map((task, index) => {
                         if (
                           task.date.day === item.day &&
@@ -109,7 +136,7 @@ export default function CalendarComponent({
                         }
                       })}
                   </View>
-                </View>
+                </Animated.View>
               </TouchableWithoutFeedback>
             ))}
           </View>
@@ -121,22 +148,25 @@ export default function CalendarComponent({
 const styles = StyleSheet.create({
   dayCl: {
     alignItems: "center",
-    // borderRadius: 20,
+    width: "20%",
     borderWidth: 2,
     borderColor: "transparent",
     paddingTop: 11,
+    borderRadius: 50,
   },
   weekCon: {
     flexDirection: "row",
     // justifyContent: "space-evenly",
-    borderWidth: 2,
-    marginVertical: 4,
+    // borderWidth: 2,
+    // marginVertical: 4,
+    paddingVertical: 2,
     borderRadius: 5,
     borderColor: "dodgerblue",
+    borderBottomWidth: 2,
   },
   calendarDay: {
     color: "black",
-    fontSize: 16,
+    fontSize: 17,
   },
   ntCrMth: {
     color: "grey",
@@ -145,15 +175,22 @@ const styles = StyleSheet.create({
     borderColor: "dodgerblue",
     backgroundColor: "dodgerblue",
     color: "white",
+    borderWidth: 2,
   },
   badgeBox: {
     flexDirection: "row",
     height: 11,
+    width: "100%",
+    // alignItems: "baseline",
     justifyContent: "center",
-    alignItems: "center",
   },
   active: {
-    // borderColor: "darkblue",
+    // borderColor: "white",
     backgroundColor: "#00eae9",
+  },
+  line: {
+    backgroundColor: "dodgerblue",
+    width: "100%",
+    height: 1.6,
   },
 });

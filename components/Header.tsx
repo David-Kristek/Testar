@@ -21,19 +21,21 @@ export default function Header({ children, btw }: Props) {
 
 const style = StyleSheet.create({
   box: {
+    backgroundColor: "white",
     flexDirection: "row",
-    paddingTop: 50,
+    // paddingTop: 50,
     width: "105%",
     height: 95,
     paddingHorizontal: 30,
     shadowColor: "#000",
-    marginBottom: 20,
+    paddingBottom: 20,
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
+    borderWidth: 0, 
     
     elevation: 4,
   },
