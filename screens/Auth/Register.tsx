@@ -1,15 +1,12 @@
 import React, { useState, useContext } from "react";
-import Expo from "expo";
 import { Text, View, StyleSheet, ScrollView } from "react-native";
 import Input from "../../components/Input";
-const appId = "1047121222092614";
 import Icon from "react-native-vector-icons/Ionicons";
 import Button from "../../components/Button";
 import { AuthNavProps } from "./index";
-import { AuthContext } from "../../context/Auth/AuthContext";
 import styles from "./style";
-import { useAppDispatch } from "../../hooks/ReduxHooks";
-import { register } from "../../redux/actions/auth";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { register } from "../../redux/slicers/auth";
 export default function RegisterScreen({
   navigation,
 }: AuthNavProps<"Register">) {
@@ -19,30 +16,11 @@ export default function RegisterScreen({
   const [emailInput, setEmailInput] = useState("");
   const [bakalariNameInput, setBakalariNameInput] = useState("");
   const [bakalariPwdInput, setBakalariPwdInput] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [groupError, setGroupError] = useState("");
-  const [bakalariError, setBakalariError] = useState("");
-  const [waitForVerify, setwaitForVerify] = useState(false);
 
   const dispatch = useAppDispatch();
+  const { status } = useAppSelector((state) => state.auth);
 
   const onRegisterPress = () => {
-    setLoginError("");
-    setGroupError("");
-    setBakalariError("");
-    setwaitForVerify(false);
-    if (!groupInput) {
-      setGroupError("Vyplňte název skupiny");
-      return;
-    }
-    if (!nameInput || !emailInput) {
-      setLoginError("Vyplňte všechny údaje");
-      return;
-    }
-    if (!bakalariNameInput || !emailInput) {
-      setBakalariError("Vyplňte všechny údaje");
-      return;
-    }
     setLoading(true);
     dispatch(
       register({
@@ -53,24 +31,12 @@ export default function RegisterScreen({
         bakalaripassword: bakalariPwdInput,
       })
     )
-      .then((res) => {
+      .then(() => {
         setLoading(false);
-        if (res.waitForVerify) {
-          setwaitForVerify(true);
-        }
       })
-      .catch((err) => {
+      .catch(() => {
         setLoading(false);
-        console.log(err);
-        if (err.groupname) {
-          setGroupError(err.groupname);
-        }
-        if (err.bakalariError) {
-          setBakalariError(err.bakalariError);
-        }
-        if (typeof err === "string") {
-          setLoginError(err);
-        }
+
       });
   };
 
@@ -83,7 +49,7 @@ export default function RegisterScreen({
           <Icon name="calendar-outline" size={30} color="black" />
           <Text style={styles.logoText}>Tesťák</Text>
         </View>
-        {waitForVerify ? (
+        {status?.waitForVerify ? (
           <Text style={styles.alert}>
             Nyní vám přišel email, ten ověřte, vraťte se do aplikace a klikněte
             znovu na připojit
@@ -92,15 +58,23 @@ export default function RegisterScreen({
           <></>
         )}
         <Text style={styles.label}>Jak se bude skupina jmenovat ?</Text>
-        {groupError ? <Text style={styles.error}>{groupError}</Text> : <></>}
+        {status?.groupname ? (
+          <Text style={styles.error}>{status.groupname}</Text>
+        ) : (
+          <></>
+        )}
         <Input placeholder="Jméno skupiny" set={setGroupInput} />
         <Text style={styles.label}>Vaše údaje: </Text>
-        {loginError ? <Text style={styles.error}>{loginError}</Text> : <></>}
+        {typeof status === "string" ? (
+          <Text style={styles.error}>{status}</Text>
+        ) : (
+          <></>
+        )}
         <Input placeholder="Jméno" set={setNameInput} />
         <Input placeholder="Email" set={setEmailInput} />
         <Text style={styles.label}>Vaše údaje do bakalářů: </Text>
-        {bakalariError ? (
-          <Text style={styles.error}>{bakalariError}</Text>
+        {status?.bakalariError ? (
+          <Text style={styles.error}>{status.bakalariError}</Text>
         ) : (
           <></>
         )}

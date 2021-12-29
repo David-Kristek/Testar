@@ -6,10 +6,10 @@ import * as SecureStore from "expo-secure-store";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { useNetInfo } from "@react-native-community/netinfo";
-import authReducer, { initialAuthState } from "../../redux/reducers/auth";
+// import authReducer, { initialAuthState } from "../../redux/reducers/auth";
 
 export const AuthState: React.FC = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialAuthState);
+  // const [state, dispatch] = useReducer(authReducer, initialAuthState);
   const [loading, setLoading] = useState(true);
   const netinfo = useNetInfo();
   useEffect(() => {

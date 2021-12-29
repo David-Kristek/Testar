@@ -15,12 +15,19 @@
 // type AppThunkDispatch = ThunkDispatch<RootState, any, AnyAction>;
 
 import { configureStore } from "@reduxjs/toolkit";
-import reducer from "./redux";
-
+import AuthReducer from "./redux/slicers/auth";
 const store = configureStore({
-  reducer,
+  reducer: {
+    auth: AuthReducer,
+  },
 });
-
 export default store;
-export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof reducer>;
+
+
+type RootState = ReturnType<typeof store.getState>
+type AppDispatch = typeof store.dispatch
+
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
+
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+export const useAppDispatch = () => useDispatch<AppDispatch>()

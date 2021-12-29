@@ -5,7 +5,7 @@ import Auth from "../screens/Auth";
 import Calendar from "../screens/Calendar";
 import { AuthContext } from "./Auth/AuthContext";
 import { MenuProvider } from "react-native-popup-menu";
-import { useAppSelector } from "../hooks/ReduxHooks";
+import { useAppSelector } from "../store";
 export default function Provider() {
   const { logged } = useAppSelector((state) => state.auth);
 

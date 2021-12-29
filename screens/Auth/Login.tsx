@@ -5,58 +5,31 @@ import Input from "../../components/Input";
 import Icon from "react-native-vector-icons/Ionicons";
 import Button from "../../components/Button";
 import { AuthNavProps } from "./index";
-import { AuthContext } from "../../context/Auth/AuthContext";
 import { useNavigation } from "@react-navigation/native";
-import { login } from "../../redux/actions/auth";
-import { RootState } from "../../redux";
-import { useAppDispatch, useAppSelector } from "../../hooks/ReduxHooks";
+import { login } from "../../redux/slicers/auth";
+
 import thunkMiddleware, { ThunkDispatch, ThunkMiddleware } from "redux-thunk";
 import styles from "./style";
+import { useAppDispatch, useAppSelector } from "../../store";
 export default function LoginScreen({ navigation }: AuthNavProps<"Login">) {
   const navCalendar = useNavigation(); /// <-- that isn't needed, you can directly use navigation prop
   const [loading, setLoading] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [groupInput, setGroupInput] = useState("");
   const [emailInput, setEmailInput] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [groupError, setGroupError] = useState("");
-  const [waitForVerify, setwaitForVerify] = useState(false);
 
-  const { logged } = useAppSelector((state) => state.auth);
-  const { message } = useAppSelector((state) => state.message);
-
+  const { status } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const onLoginPress = async () => {
-    setLoginError("");
-    setGroupError("");
-    setwaitForVerify(false);
-    if (!nameInput || !emailInput) {
-      setLoginError("Vyplňte všechny údaje");
-      return;
-    }
-    if (!groupInput) {
-      setGroupError("Vyplňte název skupiny");
-      return;
-    }
     setLoading(true);
     dispatch(
       login({ username: nameInput, email: emailInput, groupname: groupInput })
     )
-      .then((res) => {
+      .then(() => {
         setLoading(false);
-        if (res.waitForVerify) {
-          setwaitForVerify(true);
-        }
       })
-      .catch((err) => {
+      .catch(() => {
         setLoading(false);
-        console.log(err);
-        if (err.groupname) {
-          setGroupError(err.groupname);
-        }
-        if (typeof err === "string") {
-          setLoginError(err);
-        }
       });
   };
 
@@ -69,7 +42,7 @@ export default function LoginScreen({ navigation }: AuthNavProps<"Login">) {
           <Icon name="calendar-outline" size={30} color="black" />
           <Text style={styles.logoText}>Tesťák</Text>
         </View>
-        {waitForVerify ? (
+        {status?.waitForVerify ? (
           <Text style={styles.alert}>
             Nyní vám přišel email, ten ověřte, vraťte se do aplikace a klikněte
             znovu na připojit
@@ -78,11 +51,19 @@ export default function LoginScreen({ navigation }: AuthNavProps<"Login">) {
           <></>
         )}
         <Text style={styles.label}>Vaše údaje: </Text>
-        {loginError ? <Text style={styles.error}>{loginError}</Text> : <></>}
+        {typeof status === "string" ? (
+          <Text style={styles.error}>{status}</Text>
+        ) : (
+          <></>
+        )}
         <Input placeholder="Jméno" set={setNameInput} />
         <Input placeholder="Email" set={setEmailInput} />
         <Text style={styles.label}>Do jaké skupiny se chcete připojit?</Text>
-        {groupError ? <Text style={styles.error}>{groupError}</Text> : <></>}
+        {status?.groupname ? (
+          <Text style={styles.error}>{status.groupname}</Text>
+        ) : (
+          <></>
+        )}
         <Input placeholder="Jméno skupiny" set={setGroupInput} />
         <Button text="Připojit se" onPress={onLoginPress} loading={false} />
         <Text

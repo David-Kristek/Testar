@@ -5,23 +5,36 @@ import * as SecureStore from "expo-secure-store";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 // const API =  "https://testar-server.herokuapp.com"
-const API =  "http://10.0.0.2:5000"
-export type loginProps = {
-    username: string;
-    email: string;
-    groupname: string;
-  };
-  
+const API = "http://10.0.0.2:5000";
 
-export const login = ({username, email, groupname}: loginProps) => {
+export type loginProps = {
+  username: string;
+  email: string;
+  groupname: string;
+};
+export const validateLoginData = (loginData: loginProps) => {
+  const { username, email, groupname } = loginData;
+  if (!username || !email) {
+    return { OK: false, error: "Vyplňte všechny údaje" };
+  }
+  if (!groupname) {
+    return { OK: false, error: { groupname: "Vyplňte název skupiny" } };
+  }
+  return { OK: true };
+};
+// (dataToValidate,
+// [
+//   [["username", "email"], "naka chyba"]
+//   ["groupname", {groupname: "naka chyba"}]
+// ])
+
+export const login = (loginData: loginProps) => {
   //   const address = await getDeviceId();
   return axios({
     url: `${API}/auth/login`,
     data: {
-      username,
-      groupname,
-      email,
-      address : "84541795-05b3-4450-ae40-8caee03afec9",
+      ...loginData,
+      address: "84541795-05b3-4450-ae40-8caee03afec9",
     },
     method: "POST",
   });
@@ -34,24 +47,30 @@ export type registerProps = {
   bakalariusername: string;
   bakalaripassword: string;
 };
+export const validateRegisterData = (registerData: registerProps) => {
+  const { username, email, groupname, bakalariusername, bakalaripassword } =
+    registerData;
+  if (!groupname) {
+    return { OK: false, error: { groupname: "Vyplňte název skupiny" } };
+  }
+  if (!username || !email) {
+    return { OK: false, error: "Vyplňte všechny údaje" };
+  }
+  if (!bakalariusername || !bakalaripassword) {
+    return {
+      OK: false,
+      error: { bakalariError: "Vyplňte údaje pro přihlášení do bakalářů" },
+    };
+  }
+  return { OK: true };
+};
 
-export const register = ({
-  username,
-  email,
-  groupname,
-  bakalariusername,
-  bakalaripassword,
-}: registerProps) => {
-  //   const address = await getDeviceId();
+export const register = (registerData: registerProps) => {
   return axios({
     url: `${API}/auth/create_group`,
     data: {
-      username,
-      groupname,
-      email,
-      bakalariusername,
-      bakalaripassword,
-      address : "84541795-05b3-4450-ae40-8caee03afec9",
+      ...registerData,
+      address: "84541795-05b3-4450-ae40-8caee03afec9",
     },
     method: "POST",
   });
