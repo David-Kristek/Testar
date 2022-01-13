@@ -1,14 +1,16 @@
 import React, { useContext, useState, useEffect } from "react";
 import { TextInput, StyleSheet, View, Text, ScrollView } from "react-native";
 import CheckBox from "@react-native-community/checkbox";
-import Button from "../../components/Button";
-import Input from "../../components/Input";
+import Button from "../../components/others/Button";
+import Input from "../../components/others/Input";
 import { CalendarNavProps } from "./";
-import { CalendarContext } from "../../context/CalendarContext";
 import ColorPicker from "react-native-wheel-color-picker";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import { SocketContext } from "../../context/SocketContext";
+// import { SocketContext } from "../../context/SocketContext";
 import { NavigationEvents } from "react-navigation";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { useGetSubjectColorQuery } from "../../services/task";
+import { addTask } from "../../redux/slicers/task";
 
 interface Props {}
 
@@ -19,38 +21,42 @@ export default function AddTask({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isDUSelected, setIsDUSelected] = useState(true);
-  const [isTestSelected, setIsTestSelected] = useState(false);
   const [color, setColor] = useState("#FFFFFF");
   const { subject, activeDate } = route.params;
-  const { addTask, getSubject } = useContext(CalendarContext);
-  const { user } = useContext(AuthContext);
-  const { socket } = useContext(SocketContext);
+  // const { socket } = useContext(SocketContext);
+  const { data, isLoading, currentData } = useGetSubjectColorQuery(
+    subject.title
+  );
+  const user = useAppSelector((state) => state.auth.user);
+  const dispatch = useAppDispatch();
   const onPressHandler = async () => {
     if (!title) return;
     const type = isDUSelected ? "homework" : "test";
-    await addTask({
-      _id: "",
-      title,
-      description,
-      type,
-      date: activeDate,
-      subject: {
-        title: subject.title,
-        index: subject.index,
-        color,
-      },
-      createdByUser: user ?? { username: "", email: "" },
-    });
+    dispatch(
+      addTask({
+        index: {
+          _id: "",
+          title,
+          description,
+          type,
+          date: activeDate,
+          subject: {
+            title: subject.title,
+            index: subject.index,
+            color,
+          },
+          createdByUser: user ?? { username: "", email: "" },
+        },
+      })
+    );
+
     navigation.navigate("CalendarScreen");
   };
   useEffect(() => {
-    navigation.addListener("beforeRemove", () => {
-      socket?.emit("addingTaskOver", activeDate, user)
-    });    
-    getSubject(subject.title, activeDate).then((res) => {
-      if (res.color) setColor(res.color);
-    });
-  }, []);
+    if (data) {
+      setColor(data.color);
+    }
+  }, [isLoading]);
   return (
     <ScrollView style={styles.container}>
       <View style={styles.badgeCon}>
@@ -65,7 +71,6 @@ export default function AddTask({
           <CheckBox
             value={isDUSelected}
             onValueChange={(value) => {
-              setIsTestSelected(!value);
               setIsDUSelected(value);
             }}
           />
@@ -73,10 +78,9 @@ export default function AddTask({
         </View>
         <View style={styles.checkBoxCon}>
           <CheckBox
-            value={isTestSelected}
+            value={!isDUSelected}
             onValueChange={(value) => {
               setIsDUSelected(!value);
-              setIsTestSelected(value);
             }}
           />
           <Text>Test</Text>

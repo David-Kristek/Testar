@@ -15,19 +15,53 @@
 // type AppThunkDispatch = ThunkDispatch<RootState, any, AnyAction>;
 
 import { configureStore } from "@reduxjs/toolkit";
+import { AnyAction } from "redux";
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import AuthReducer from "./redux/slicers/auth";
+import TaskReducer from "./redux/slicers/task";
+import { taskApi } from "./services/task";
+import OfflineActionMiddleware, {
+  OfflineActionsResolve,
+} from "./redux/middlewares/OfflineActionMiddleware";
+
+const AuthReducerN = (state: any, action: AnyAction) => {
+  if (action.type === "auth/logout") {
+    AsyncStorage.removeItem("persist:root");
+  }
+  return AuthReducer(state, action);
+};
+
 const store = configureStore({
   reducer: {
-    auth: AuthReducer,
+    [taskApi.reducerPath]: taskApi.reducer,
+    auth: AuthReducerN,
+    task: TaskReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }).concat([taskApi.middleware, OfflineActionMiddleware]),
 });
 export default store;
+export const persistor = persistStore(store);
 
+export type RootState = ReturnType<typeof store.getState>;
+type AppDispatch = typeof store.dispatch;
 
-type RootState = ReturnType<typeof store.getState>
-type AppDispatch = typeof store.dispatch
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-export const useAppDispatch = () => useDispatch<AppDispatch>()
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useAppDispatch = () => useDispatch<AppDispatch>();

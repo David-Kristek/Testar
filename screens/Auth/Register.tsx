@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
 import { Text, View, StyleSheet, ScrollView } from "react-native";
-import Input from "../../components/Input";
+import Input from "../../components/others/Input";
 import Icon from "react-native-vector-icons/Ionicons";
-import Button from "../../components/Button";
+import Button from "../../components/others/Button";
 import { AuthNavProps } from "./index";
 import styles from "./style";
 import { useAppDispatch, useAppSelector } from "../../store";
@@ -30,14 +30,7 @@ export default function RegisterScreen({
         bakalariusername: bakalariNameInput,
         bakalaripassword: bakalariPwdInput,
       })
-    )
-      .then(() => {
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-
-      });
+    );
   };
 
   return (

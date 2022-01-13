@@ -14,43 +14,49 @@ import {
   FlatList,
   Dimensions,
 } from "react-native";
-import Header from "../../components/Header";
+import Header from "../../components/others/Header";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { CalendarNavProps } from "./index";
 import { data } from "../../hooks/useCalendarData";
-import Subject from "../../components/Subject";
-import Task from "../../components/Task";
-import CalendarComponent from "../../components/CalendarComponent";
-import { CalendarContext } from "../../context/CalendarContext";
-import SideMenu from "../../components/SideMenu";
+import CalendarComponent from "../../components/moleculs/CalendarComponent";
+import SideMenu from "../../components/atoms/SideMenu";
+import { useGetTasksQuery } from "../../services/task";
+import { useAppDispatch, useAppSelector } from "../../store";
+import TimeTable from "../../components/moleculs/Timetable";
+import TaskList from "../../components/moleculs/TaskList";
+import socketMethods from "../../services/socket";
+
+export type activeSubject = {
+  index: number;
+  title: string;
+};
+export type activeDate = {
+  month: number;
+  day: number;
+  dayInWeek: number;
+};
+
 export default function Calendar({
   navigation,
 }: CalendarNavProps<"CalendarScreen">) {
   const date = new Date();
   const [month, setMonth] = useState(date.getMonth());
-  const [active, setActive] = useState({
+  const year = useRef({ count: date.getFullYear() });
+  const [activeDate, setActiveDate] = useState<activeDate>({
     month: month,
     day: 0,
     dayInWeek: date.getDay(),
   });
   const [refreshing, setRefreshing] = useState(false);
-  const [activeSubject, setActiveSubject] = useState({
-    index: 0,
+  const [activeSubject, setActiveSubject] = useState<activeSubject>({
+    index: -1,
     title: "",
   });
-  const year = useRef({ count: date.getFullYear() });
-  const screenWidth = Dimensions.get("window").width;
   const flatListRef = useRef<FlatList>(null);
-  const { timeTableData, tasksData, callRefresh } = useContext(CalendarContext);
-  useEffect(() => {
-    if (timeTableData && active.dayInWeek !== -1)
-      setActiveSubject({
-        index: 0,
-        title: timeTableData[active.dayInWeek]
-          ? timeTableData[active.dayInWeek][0].subject.Name
-          : "",
-      });
-  }, [active]);
+  const { refetch } = useGetTasksQuery({});
+  const screenWidth = Dimensions.get("window").width;
+  const dispatch = useAppDispatch(); 
+
   const DATA = [
     {
       id: 0,
@@ -70,7 +76,7 @@ export default function Calendar({
   ];
   const refreshHandler = () => {
     setRefreshing(true);
-    callRefresh();
+    refetch();
     setTimeout(() => {
       setRefreshing(false);
     });
@@ -84,7 +90,6 @@ export default function Calendar({
     });
   };
   const previousMonth = () => {
-    // console.log(year);
     setMonth((month: number) => {
       if (month === 0) {
         year.current.count -= 1;
@@ -95,19 +100,17 @@ export default function Calendar({
   const _onViewableItemsChanged = useCallback((item: any) => {
     if (item.viewableItems.length === 1) {
       if (item.viewableItems[0]?.index === 0) {
-        // console.log("prev");
         previousMonth();
         setTimeout(() => {
           flatListRef.current?.scrollToIndex({ animated: false, index: 1 });
         }, 20);
-        setActive({ month: 0, day: 0, dayInWeek: -1 });
+        setActiveDate({ month: 0, day: 0, dayInWeek: -1 });
       } else if (item.viewableItems[0]?.index === 2) {
-        // console.log("next", !!flatListRef.current);
         nextMonth();
         setTimeout(() => {
           flatListRef.current?.scrollToIndex({ animated: false, index: 1 });
         }, 50);
-        setActive({ month: 0, day: 0, dayInWeek: -1 });
+        setActiveDate({ month: 0, day: 0, dayInWeek: -1 });
       }
     }
   }, []);
@@ -119,8 +122,8 @@ export default function Calendar({
           month={item.month}
           year={item.year}
           id={item.id}
-          active={active}
-          setActive={setActive}
+          active={activeDate}
+          setActive={setActiveDate}
           key={item.id}
         />
       </View>
@@ -167,57 +170,20 @@ export default function Calendar({
             refreshing={refreshing}
           />
         </View>
-        <View style={[styles.row, { marginTop: 20, flexWrap: "wrap" }]}>
-          {timeTableData &&
-            active.dayInWeek !== -1 &&
-            timeTableData[active.dayInWeek] &&
-            timeTableData[active.dayInWeek].map((item, index) => {
-              const onPressHandler = () => {
-                setActiveSubject({ index, title: item.subject.Name });
-              };
-              // const color = tasksData?.filter(item => item.subject.)
-              return (
-                <Subject
-                  title={item.subject.Abbrev}
-                  selected={index === activeSubject.index}
-                  onTouch={onPressHandler}
-                  Room={item.room}
-                  key={index}
-                />
-              );
-            })}
-        </View>
-        {tasksData &&
-          tasksData.map((task, index) => {
-            if (
-              task.date.day === active.day &&
-              task.date.month === active.month
-              //  && task.date.year === year
-            ) {
-              if (task.type !== "progress")
-                return (
-                  <Task
-                    title={task.title}
-                    subject={task.subject.title}
-                    color={task.subject.color}
-                    description={task.description}
-                    key={index}
-                    id={task._id}
-                  />
-                );
-              else {
-                return <></>;
-              }
-            }
-          })}
-        {activeSubject.title && active.dayInWeek !== -1 ? (
+        <TimeTable
+          setActiveSubject={setActiveSubject}
+          activeSubject={activeSubject}
+          activeDate={activeDate}
+        />
+        <TaskList activeDate={activeDate} />
+        {activeSubject.title && activeDate.dayInWeek !== -1 ? (
           <TouchableOpacity
             style={styles.plus}
             onPress={() => {
               navigation.navigate("AddTask", {
                 subject: activeSubject,
                 activeDate: {
-                  day: active.day,
+                  day: activeDate.day,
                   month: month,
                   year: year.current.count,
                 },

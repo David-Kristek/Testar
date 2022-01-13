@@ -1,3 +1,5 @@
+// https://www.toptal.com/react/redux-toolkit-and-rtk-query
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -5,7 +7,7 @@ import * as SecureStore from "expo-secure-store";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 // const API =  "https://testar-server.herokuapp.com"
-const API = "http://10.0.0.2:5000";
+const API = "http://10.0.0.2:5000/auth";
 
 export type loginProps = {
   username: string;
@@ -31,7 +33,7 @@ export const validateLoginData = (loginData: loginProps) => {
 export const login = (loginData: loginProps) => {
   //   const address = await getDeviceId();
   return axios({
-    url: `${API}/auth/login`,
+    url: `${API}/login`,
     data: {
       ...loginData,
       address: "84541795-05b3-4450-ae40-8caee03afec9",
@@ -67,7 +69,7 @@ export const validateRegisterData = (registerData: registerProps) => {
 
 export const register = (registerData: registerProps) => {
   return axios({
-    url: `${API}/auth/create_group`,
+    url: `${API}/create_group`,
     data: {
       ...registerData,
       address: "84541795-05b3-4450-ae40-8caee03afec9",

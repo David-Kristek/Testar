@@ -5,10 +5,9 @@ import { Pressable } from "react-native";
 
 import NotFoundScreen from "../screens/NotFoundScreen";
 import TabOneScreen from "../screens/Calendar/CalendarScreen";
-import { RootStackParamList } from "../types";
 import Login from "../screens/Auth/Login";
 import RegisterScreen from "../screens/Auth/Register";
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator();
 
 export default function Navigation() {
   return (

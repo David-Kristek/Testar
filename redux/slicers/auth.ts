@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   createSlice,
   PayloadAction,
@@ -6,9 +7,12 @@ import {
   isPending,
   isRejected,
   isFulfilled,
+  isAnyOf,
 } from "@reduxjs/toolkit";
+import { PersistConfig } from "redux-persist/es/types";
+import persistReducer from "redux-persist/lib/persistReducer";
 import * as AuthService from "../../services/auth";
-
+import { AnyAction } from "redux";
 type AuthState =
   | {
       logged: false;
@@ -31,6 +35,7 @@ export const login = createAsyncThunk(
       const { waitForVerify, user } = asyncResp.data;
       return { status: { waitForVerify }, user };
     } catch (error: any) {
+      console.log(error, "error");
       return thunkAPI.rejectWithValue({ status: error.response.data });
     }
   }
@@ -60,22 +65,40 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addMatcher(isFulfilled, (state, action: PayloadAction<AuthState>) => {
-        if (!!action.payload.status && !!action.payload.status.waitForVerify) {
-          state.logged = false;
-          state.status = { waitForVerify: true };
-        } else {
-          state.logged = true;
-          state.user = action.payload.user;
+      .addMatcher(
+        isAnyOf(login.fulfilled, register.fulfilled),
+        (state, action: PayloadAction<AuthState>) => {
+          if (
+            !!action.payload.status &&
+            !!action.payload.status.waitForVerify
+          ) {
+            state.logged = false;
+            state.status = { waitForVerify: true };
+          } else {
+            state.logged = true;
+            state.user = action.payload.user;
+          }
         }
-      })
-      .addMatcher(isRejected, (state, action: PayloadAction<AuthState>) => {
-        state.status = action.payload.status;
-        state.logged = false;
-      });
+      )
+      .addMatcher(
+        isAnyOf(login.rejected, register.rejected),
+        (state, action: PayloadAction<AuthState>) => {
+          state.status = action.payload.status;
+          state.logged = false;
+        }
+      );
   },
 });
-export default authSlice.reducer;
+const authReducer = authSlice.reducer;
+export const { logout } = authSlice.actions;
+const persistConfig = {
+  key: "auth",
+  version: 1,
+  storage: AsyncStorage,
+  blacklist: ["status"],
+};
+
+export default persistReducer(persistConfig, authReducer);
 // web turtorial
 // https://cloudnweb.dev/2021/02/modern-react-redux-tutotials-redux-toolkit-login-user-registration/
 // bezcoder

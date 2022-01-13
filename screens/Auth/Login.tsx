@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
 import Expo from "expo";
 import { Text, View, StyleSheet, TextInput } from "react-native";
-import Input from "../../components/Input";
+import Input from "../../components/others/Input";
 import Icon from "react-native-vector-icons/Ionicons";
-import Button from "../../components/Button";
+import Button from "../../components/others/Button";
 import { AuthNavProps } from "./index";
 import { useNavigation } from "@react-navigation/native";
 import { login } from "../../redux/slicers/auth";
@@ -24,13 +24,7 @@ export default function LoginScreen({ navigation }: AuthNavProps<"Login">) {
     setLoading(true);
     dispatch(
       login({ username: nameInput, email: emailInput, groupname: groupInput })
-    )
-      .then(() => {
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+    );
   };
 
   return (

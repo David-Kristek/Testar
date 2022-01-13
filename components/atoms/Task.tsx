@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   TextInput,
   StyleSheet,
@@ -15,9 +15,10 @@ import {
   MenuOption,
   MenuTrigger,
 } from "react-native-popup-menu";
-import { CalendarContext } from "../context/CalendarContext";
 import Icon from "react-native-vector-icons/AntDesign";
-import Button from "./Button";
+import { deleteTask } from "../../redux/slicers/task";
+import { useAppDispatch } from "../../store";
+import Button from "../others/Button";
 interface Props {
   title: string;
   subject: string;
@@ -34,8 +35,8 @@ export default function Task({
   id,
 }: Props) {
   const [height, setHeight] = React.useState(0);
-  const { deleteTask } = useContext(CalendarContext);
   const animatedValue = useRef(new Animated.Value(0)).current;
+  const dispatch = useAppDispatch();
   useEffect(() => {
     animatedValue.setValue(0);
     Animated.timing(animatedValue, {
@@ -45,7 +46,7 @@ export default function Task({
     }).start();
   }, []);
   const deleteHandler = () => {
-    deleteTask(id);
+    dispatch(deleteTask({ index: id }));
     Animated.timing(animatedValue, {
       toValue: 0,
       duration: 500,
@@ -77,7 +78,7 @@ export default function Task({
             ]}
           >
             <Image
-              source={require("../assets/screenimages/pin.png")}
+              source={require("../../assets/screenimages/pin.png")}
               style={styles.pin}
             />
 

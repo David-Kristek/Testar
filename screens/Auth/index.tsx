@@ -1,5 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createStackNavigator, TransitionPresets } from "@react-navigation/stack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 
@@ -20,10 +20,8 @@ export type AuthNavProps<T extends keyof AuthStackParamList> = {
   route: RouteProp<AuthStackParamList, T>;
 };
 export default function Auth() {
-  const Root = createStackNavigator();
   return (
     <Stack.Navigator
-    //   https://reactnavigation.org/docs/modal/#summary
     >
       <Stack.Screen
         name="Login"

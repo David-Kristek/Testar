@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Icona from "react-native-vector-icons/AntDesign";
@@ -9,11 +9,13 @@ import {
   MenuOption,
   MenuTrigger,
 } from "react-native-popup-menu";
-import { AuthContext } from "../context/Auth/AuthContext";
+import { AuthContext } from "../../context/Auth/AuthContext";
+import { logout } from "../../redux/slicers/auth";
+import { useAppDispatch } from "../../store";
 interface Props {}
 
 export default function SideMenu() {
-  const { logout } = useContext(AuthContext);
+  const dispatch = useAppDispatch();
   return (
     <Menu>
       <MenuTrigger>
@@ -32,7 +34,7 @@ export default function SideMenu() {
                 // onPress: () => console.log("Cancel Pressed"),
                 style: "cancel",
               },
-              { text: "OK", onPress: logout },
+              { text: "OK", onPress: () =>{ dispatch(logout())} },
             ])
           }
           style={styles.menuOption}

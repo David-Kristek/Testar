@@ -6,8 +6,7 @@ import {
   TouchableWithoutFeedback,
   Animated,
 } from "react-native";
-import Badge from "../components/Badge";
-import { CalendarContext } from "../context/CalendarContext";
+import Badge from "../atoms/Badge";
 
 export interface Props {
   month: number;
@@ -16,7 +15,8 @@ export interface Props {
   active: { month: number; day: number; dayInWeek: number };
   setActive: (param: { month: number; day: number; dayInWeek: number }) => void;
 }
-import useCalendarData from "../hooks/useCalendarData";
+import useCalendarData from "../../hooks/useCalendarData";
+import { useAppSelector } from "../../store";
 
 export default function CalendarComponent({
   month,
@@ -49,8 +49,8 @@ export default function CalendarComponent({
     numberOfShownMonth
   );
 
-  const { tasksData } = useContext(CalendarContext);
   const animatedValue = useRef(new Animated.Value(0)).current;
+  const { tasks } = useAppSelector((state) => state.task);
   useEffect(() => {
     // animatedValue.setValue(0);
     // console.log("happend--+");
@@ -119,8 +119,8 @@ export default function CalendarComponent({
 
                   <View style={styles.badgeBox}>
                     {id === 1 &&
-                      tasksData &&
-                      tasksData.map((task, index) => {
+                      tasks &&
+                      tasks.map((task, index) => {
                         if (
                           task.date.day === item.day &&
                           task.date.month === item.month &&
