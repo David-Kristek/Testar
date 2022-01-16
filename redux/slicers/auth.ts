@@ -31,7 +31,8 @@ export const login = createAsyncThunk(
     if (!validation.OK)
       return thunkAPI.rejectWithValue({ status: validation.error });
     try {
-      const asyncResp = await AuthService.login(loginData);
+      const deviceAddress = await AuthService.getDeviceId(); 
+      const asyncResp = await AuthService.login(loginData, deviceAddress);
       const { waitForVerify, user } = asyncResp.data;
       return { status: { waitForVerify }, user };
     } catch (error: any) {
@@ -47,7 +48,8 @@ export const register = createAsyncThunk(
     if (!validation.OK)
       return thunkAPI.rejectWithValue({ status: validation.error });
     try {
-      const asyncResp = await AuthService.register(registerData);
+      const deviceAddress = await AuthService.getDeviceId(); 
+      const asyncResp = await AuthService.register(registerData, deviceAddress);
       const { waitForVerify, user } = asyncResp.data;
       return { status: { waitForVerify }, user };
     } catch (error: any) {

@@ -1,12 +1,5 @@
 import React, { useMemo, useRef, useEffect, useContext, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableWithoutFeedback,
-  Animated,
-} from "react-native";
-import Badge from "../atoms/Badge";
+import { StyleSheet, View } from "react-native";
 
 export interface Props {
   month: number;
@@ -16,7 +9,7 @@ export interface Props {
   setActive: (param: { month: number; day: number; dayInWeek: number }) => void;
 }
 import useCalendarData from "../../hooks/useCalendarData";
-import { useAppSelector } from "../../store";
+import CalendarDay from "../atoms/CalendarDay";
 
 export default function CalendarComponent({
   month,
@@ -44,22 +37,10 @@ export default function CalendarComponent({
       : id === 2 && month === 11
       ? year + 1
       : year;
-  const { data, calendarData } = useCalendarData(
+  const { calendarData } = useCalendarData(
     numberOfShownYear,
     numberOfShownMonth
   );
-
-  const animatedValue = useRef(new Animated.Value(0)).current;
-  const { tasks } = useAppSelector((state) => state.task);
-  useEffect(() => {
-    // animatedValue.setValue(0);
-    // console.log("happend--+");
-    // Animated.timing(animatedValue, {
-    //   toValue: 1,
-    //   useNativeDriver: false,
-    //   duration: 500,
-    // }).start();    }
-  }, [active]);
   return (
     <>
       {calendarData &&
@@ -72,72 +53,17 @@ export default function CalendarComponent({
             key={index}
           >
             {item.map((item, index) => (
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  if (active.day === item.day && active.month === item.month) {
-                    setActive({ month: 0, day: 0, dayInWeek: -1 });
-                    return;
-                  }
-                  setActive({
-                    month: item.month,
-                    day: item.day,
-                    dayInWeek: index,
-                  });
-                }}
+              <CalendarDay
+                active={active}
+                setActive={setActive}
+                item={item}
+                currDate={currDate}
+                month={month}
+                year={year}
+                index={index}
+                id={id}
                 key={index}
-              >
-                <Animated.View
-                  style={[
-                    styles.dayCl,
-                    currDate === item.day &&
-                      item.month == month &&
-                      styles.crDay,
-                    active.day === item.day &&
-                      active.month == item.month && [
-                        styles.active,
-                        {
-                          // backgroundColor: animatedValue.interpolate({
-                          //   inputRange: [0, 1],
-                          //   outputRange: [
-                          //     "rgba(255, 255, 255, 1)",
-                          //     "rgba(30, 144, 255, 1)",
-                          //   ],
-                          // }),
-                          // opacity: animatedValue,
-                        },
-                      ],
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.calendarDay,
-                      item.month != month && styles.ntCrMth,
-                    ]}
-                  >
-                    {item.day}
-                  </Text>
-
-                  <View style={styles.badgeBox}>
-                    {id === 1 &&
-                      tasks &&
-                      tasks.map((task, index) => {
-                        if (
-                          task.date.day === item.day &&
-                          task.date.month === item.month &&
-                          task.date.year === year
-                        ) {
-                          return (
-                            <Badge
-                              color={task.subject.color}
-                              type={task.type}
-                              key={index}
-                            />
-                          );
-                        }
-                      })}
-                  </View>
-                </Animated.View>
-              </TouchableWithoutFeedback>
+              />
             ))}
           </View>
         ))}
@@ -146,14 +72,6 @@ export default function CalendarComponent({
 }
 
 const styles = StyleSheet.create({
-  dayCl: {
-    alignItems: "center",
-    width: "20%",
-    borderWidth: 2,
-    borderColor: "transparent",
-    paddingTop: 11,
-    borderRadius: 50,
-  },
   weekCon: {
     flexDirection: "row",
     // justifyContent: "space-evenly",
@@ -163,34 +81,5 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: "dodgerblue",
     borderBottomWidth: 2,
-  },
-  calendarDay: {
-    color: "black",
-    fontSize: 17,
-  },
-  ntCrMth: {
-    color: "grey",
-  },
-  crDay: {
-    borderColor: "dodgerblue",
-    backgroundColor: "dodgerblue",
-    color: "white",
-    borderWidth: 2,
-  },
-  badgeBox: {
-    flexDirection: "row",
-    height: 11,
-    width: "100%",
-    // alignItems: "baseline",
-    justifyContent: "center",
-  },
-  active: {
-    // borderColor: "white",
-    backgroundColor: "#00eae9",
-  },
-  line: {
-    backgroundColor: "dodgerblue",
-    width: "100%",
-    height: 1.6,
   },
 });

@@ -7,7 +7,7 @@ import * as SecureStore from "expo-secure-store";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 // const API =  "https://testar-server.herokuapp.com"
-const API = "http://10.0.0.2:5000/auth";
+const API = "https://testar-server.herokuapp.com/auth";
 
 export type loginProps = {
   username: string;
@@ -30,13 +30,12 @@ export const validateLoginData = (loginData: loginProps) => {
 //   ["groupname", {groupname: "naka chyba"}]
 // ])
 
-export const login = (loginData: loginProps) => {
-  //   const address = await getDeviceId();
+export const login = (loginData: loginProps, deviceAddress: string) => {
   return axios({
     url: `${API}/login`,
     data: {
       ...loginData,
-      address: "84541795-05b3-4450-ae40-8caee03afec9",
+      address: deviceAddress,
     },
     method: "POST",
   });
@@ -67,23 +66,24 @@ export const validateRegisterData = (registerData: registerProps) => {
   return { OK: true };
 };
 
-export const register = (registerData: registerProps) => {
+export const register = (registerData: registerProps, deviceAddress : string) => {
   return axios({
     url: `${API}/create_group`,
     data: {
       ...registerData,
-      address: "84541795-05b3-4450-ae40-8caee03afec9",
+      address: deviceAddress,
     },
     method: "POST",
   });
 };
 
-const getDeviceId = async () => {
-  let fetchUUID = await SecureStore.getItemAsync("secure_deviceid");
-  // console.log(fetchUUID, "uuuiiid");
-  return fetchUUID;
+export const getDeviceId = async () => {
+  const address = await SecureStore.getItemAsync("secure_deviceid");
+  if(address) return address; 
+  return await setDeviceId(); 
 };
 const setDeviceId = async () => {
   let uuid = uuidv4();
-  await SecureStore.setItemAsync("secure_deviceid", JSON.stringify(uuid));
+  await SecureStore.setItemAsync("secure_deviceid", uuid);
+  return uuid;
 };

@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import { TextInput, StyleSheet, View, Text, ScrollView } from "react-native";
-import CheckBox from "@react-native-community/checkbox";
 import Button from "../../components/others/Button";
 import Input from "../../components/others/Input";
 import { CalendarNavProps } from "./";
@@ -66,7 +65,7 @@ export default function AddTask({
         <Text style={styles.badge}>{subject.title}</Text>
       </View>
       <Text style={styles.heading}>Přidat událost</Text>
-      <View style={styles.checkList}>
+      {/* <View style={styles.checkList}>
         <View style={styles.checkBoxCon}>
           <CheckBox
             value={isDUSelected}
@@ -85,7 +84,7 @@ export default function AddTask({
           />
           <Text>Test</Text>
         </View>
-      </View>
+      </View> */}
       <Input set={setTitle} placeholder="Název" />
       <Input set={setDescription} placeholder="Popis" />
       <Button text="Potvrdit" onPress={onPressHandler} />

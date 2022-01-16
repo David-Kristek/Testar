@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "../store";
 import socketIOClient, { Socket } from "socket.io-client";
 // import { socketTaskAdded, socketTaskDeleted } from "../redux/slicers/task";
 import SocketService from "../services/socket";
-const ENDPOINT = "http://10.0.0.2:5000/";
+const ENDPOINT = "https://testar-server.herokuapp.com/";
 
 const useSocket = () => {
   const { logged, user } = useAppSelector((state) => state.auth);

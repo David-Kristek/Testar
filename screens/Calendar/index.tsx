@@ -1,6 +1,11 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StackNavigationProp } from "@react-navigation/stack";
+
+import {
+  CardStyleInterpolators,
+  createStackNavigator,
+  StackNavigationProp,
+} from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 
 import * as React from "react";
@@ -17,7 +22,7 @@ type CalendarStackParamList = {
   };
 };
 
-const Stack = createNativeStackNavigator<CalendarStackParamList>();
+const Stack = createStackNavigator<CalendarStackParamList>();
 
 export type CalendarNavProps<T extends keyof CalendarStackParamList> = {
   navigation: StackNavigationProp<CalendarStackParamList, T>;
@@ -37,7 +42,11 @@ export default function CalendarApp() {
       <Stack.Screen
         name="AddTask"
         component={AddTask}
-        options={{ title: "Událost" }}
+        options={{
+          title: "Událost",
+          cardStyleInterpolator:
+            CardStyleInterpolators.forFadeFromBottomAndroid,
+        }}
         initialParams={{
           subject: { title: "Ajakldlas", index: 0 },
           activeDate: { day: 0, month: 0, year: 2021 },

@@ -16,7 +16,7 @@ const resolveAction = async (action: AnyAction, token: string) => {
     SocketService[ActionCaused](res);
     return {
       type: action.type,
-      payload: {index: res},
+      payload: { index: res },
     };
   } catch (err) {
     console.log(err);
@@ -58,6 +58,7 @@ export const OfflineActionsResolve = async (dispatch: any, token: string) => {
   const actions: AnyAction[] = JSON.parse(
     (await AsyncStorage.getItem("offlineactions")) ?? "[]"
   );
+
   for (const action of actions) {
     dispatch(await resolveAction(action, token));
   }

@@ -4,8 +4,8 @@ import socketIOClient, { Socket } from "socket.io-client";
 import socketListeners from "./socket";
 import axios from "axios";
 // predelat na backendu
+// const API = "https://testar-server.herokuapp.com/task/";
 const API = "http://10.0.0.2:5000/task/";
-
 export const taskApi = createApi({
   reducerPath: "taskApi",
   baseQuery: fetchBaseQuery({

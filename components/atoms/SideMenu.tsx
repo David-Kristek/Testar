@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 15,
+    height: 95
   },
   menuOptions: { marginTop: 82, width: 130 },
   menuOption: {

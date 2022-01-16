@@ -4,7 +4,6 @@ import {
   StyleSheet,
   View,
   Text,
-  Animated,
   Dimensions,
   Image,
 } from "react-native";
@@ -15,6 +14,12 @@ import {
   MenuOption,
   MenuTrigger,
 } from "react-native-popup-menu";
+import Animated, {
+  Layout,
+  FadeIn,
+  FadeInLeft,
+  FadeOutRight,
+} from "react-native-reanimated";
 import Icon from "react-native-vector-icons/AntDesign";
 import { deleteTask } from "../../redux/slicers/task";
 import { useAppDispatch } from "../../store";
@@ -25,6 +30,7 @@ interface Props {
   color: string;
   description?: string;
   id: string;
+  index: number;
 }
 
 export default function Task({
@@ -33,97 +39,71 @@ export default function Task({
   color,
   description,
   id,
+  index,
 }: Props) {
   const [height, setHeight] = React.useState(0);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    animatedValue.setValue(0);
-    Animated.timing(animatedValue, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: false,
-    }).start();
-  }, []);
   const deleteHandler = () => {
     dispatch(deleteTask({ index: id }));
-    Animated.timing(animatedValue, {
-      toValue: 0,
-      duration: 500,
-      useNativeDriver: false,
-    }).start();
   };
   return (
     <>
-      <Menu style={{ marginTop: 20, position: "relative" }}>
-        <MenuTrigger triggerOnLongPress>
-          <Animated.View
-            style={[
-              styles.taskBox,
-              {
-                backgroundColor: color,
-                transform: [
-                  {
-                    scale: animatedValue.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.9, 1],
-                    }),
-                  },
-                ],
-                opacity: animatedValue.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.5, 1],
-                }),
-              },
-            ]}
-          >
+      <Animated.View
+        layout={Layout.springify()}
+        entering={FadeInLeft.delay(index * 100)}
+        exiting={FadeOutRight}
+        style={[styles.taskBox, { backgroundColor: color }]}
+      >
+        <Menu style={{ position: "relative" }}>
+          <MenuTrigger triggerOnLongPress>
             <Image
               source={require("../../assets/screenimages/pin.png")}
               style={styles.pin}
             />
-
-            <View style={styles.box}>
-              <View>
-                <Text style={{ fontSize: 20 }}>{title}</Text>
+            <View style={styles.container}>
+              <View style={styles.box}>
+                <View>
+                  <Text style={{ fontSize: 20 }}>{title}</Text>
+                </View>
+                <Text style={styles.subject}>{subject}</Text>
               </View>
-              <Text style={styles.subject}>{subject}</Text>
+              {description ? (
+                <Text style={{ fontSize: 14, paddingBottom: 5 }}>
+                  {description}
+                </Text>
+              ) : (
+                <></>
+              )}
             </View>
-            {description ? (
-              <Text style={{ fontSize: 14, paddingBottom: 5 }}>
-                {description}
-              </Text>
-            ) : (
-              <></>
-            )}
-          </Animated.View>
-        </MenuTrigger>
-        {/* <View style={[styles.underline, { backgroundColor: color }]}></View> */}
-        <MenuOptions
-          customStyles={{
-            optionsContainer: {
-              marginTop: 36,
-              width: 100,
-              marginLeft: Dimensions.get("screen").width * 0.85 - 100,
-            },
-          }}
-        >
-          <MenuOption
-            onSelect={deleteHandler}
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          </MenuTrigger>
+          {/* <View style={[styles.underline, { backgroundColor: color }]}></View> */}
+          <MenuOptions
+            customStyles={{
+              optionsContainer: {
+                marginTop: 36,
+                width: 100,
+                marginLeft: Dimensions.get("screen").width * 0.85 - 100,
+              },
+            }}
           >
-            <Text style={{ color: "red" }}>Odstranit</Text>
-            <Icon name="delete" size={20} color="red" />
-          </MenuOption>
-        </MenuOptions>
-      </Menu>
+            <MenuOption
+              onSelect={deleteHandler}
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <Text style={{ color: "red" }}>Odstranit</Text>
+              <Icon name="delete" size={20} color="red" />
+            </MenuOption>
+          </MenuOptions>
+        </Menu>
+      </Animated.View>
     </>
   );
 }
 const styles = StyleSheet.create({
   taskBox: {
+    marginTop: 20,
     borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
     borderTopRightRadius: 0,
     shadowColor: "#000",
     shadowOffset: {
@@ -134,11 +114,11 @@ const styles = StyleSheet.create({
     shadowRadius: 9.51,
     elevation: 15,
   },
+  container: { paddingHorizontal: 15, paddingVertical: 10 },
   box: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 5,
     flexWrap: "wrap",
   },
   underline: {

@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text } from "react-native";
+import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated";
 import {
   activeDate,
   activeSubject,
@@ -21,16 +22,24 @@ export default function TimeTable({
 }: Props) {
   const a = useGetTimeTableDataQuery();
   const { timetable } = useAppSelector((state) => state.task);
+  const [first, setFirst] = useState(true);
   useEffect(() => {
     setActiveSubject({ title: "", index: -1 });
+    setFirst(false);
   }, []);
-  return (
-    <View style={[styles.row, { marginTop: 20, flexWrap: "wrap" }]}>
-      {timetable &&
-        activeDate.dayInWeek !== -1 &&
-        timetable[activeDate.dayInWeek] &&
-        timetable[activeDate.dayInWeek].length > 0 &&
-        timetable[activeDate.dayInWeek].map((item, index) => {
+  if (
+    timetable &&
+    activeDate.dayInWeek !== -1 &&
+    timetable[activeDate.dayInWeek] &&
+    timetable[activeDate.dayInWeek].length > 0
+  )
+    return (
+      <Animated.View
+        entering={FadeInUp.delay(first ? 500 : 0)}
+        exiting={FadeOutUp}
+        style={[styles.row, { marginTop: 20, flexWrap: "wrap" }]}
+      >
+        {timetable[activeDate.dayInWeek].map((item, index) => {
           const onPressHandler = () => {
             setActiveSubject({ index, title: item.subject.Name });
           };
@@ -45,8 +54,9 @@ export default function TimeTable({
             />
           );
         })}
-    </View>
-  );
+      </Animated.View>
+    );
+  else return <></>;
 }
 
 const styles = StyleSheet.create({

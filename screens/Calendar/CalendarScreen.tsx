@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-  useContext,
-} from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -24,7 +17,7 @@ import { useGetTasksQuery } from "../../services/task";
 import { useAppDispatch, useAppSelector } from "../../store";
 import TimeTable from "../../components/moleculs/Timetable";
 import TaskList from "../../components/moleculs/TaskList";
-import socketMethods from "../../services/socket";
+import Animated, { FadeInUp } from "react-native-reanimated";
 
 export type activeSubject = {
   index: number;
@@ -55,8 +48,8 @@ export default function Calendar({
   const flatListRef = useRef<FlatList>(null);
   const { refetch } = useGetTasksQuery({});
   const screenWidth = Dimensions.get("window").width;
-  const dispatch = useAppDispatch(); 
-
+  const dispatch = useAppDispatch();
+  const calendarRender = useRef({ is: false });
   const DATA = [
     {
       id: 0,
@@ -140,7 +133,13 @@ export default function Calendar({
         <SideMenu />
       </Header>
       <View style={styles.container}>
-        <View>
+        <Animated.View
+          entering={
+            FadeInUp.delay(100).duration(300)
+            // .withCallback((finished) => {}
+            // if (finished) calendarRender.current.is = true;
+          }
+        >
           <View style={styles.weekDaysCon}>
             {data.days.map((day, index) => (
               <Text
@@ -169,12 +168,13 @@ export default function Calendar({
             onRefresh={refreshHandler}
             refreshing={refreshing}
           />
-        </View>
+        </Animated.View>
         <TimeTable
-          setActiveSubject={setActiveSubject}
-          activeSubject={activeSubject}
-          activeDate={activeDate}
-        />
+            setActiveSubject={setActiveSubject}
+            activeSubject={activeSubject}
+            activeDate={activeDate}
+            // canRender={calendarRender.current.is}
+          />
         <TaskList activeDate={activeDate} />
         {activeSubject.title && activeDate.dayInWeek !== -1 ? (
           <TouchableOpacity
