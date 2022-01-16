@@ -7,6 +7,7 @@ import { AuthContext } from "./Auth/AuthContext";
 import { MenuProvider } from "react-native-popup-menu";
 import store, { useAppSelector } from "../store";
 import { OfflineActionsResolve } from "../redux/middlewares/OfflineActionMiddleware";
+import * as Network from "expo-network";
 export default function Provider() {
   const { logged } = useAppSelector((state) => state.auth);
   const [load, setLoad] = React.useState(false);
@@ -21,7 +22,7 @@ export default function Provider() {
       store.getState().auth.user?.token ?? ""
     );
     asyncFunc();
-  }, []);
+  }, [Network]);
   if (!load) return null;
   return (
     <MenuProvider>
