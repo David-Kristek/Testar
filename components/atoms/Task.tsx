@@ -24,28 +24,25 @@ import Icon from "react-native-vector-icons/AntDesign";
 import { deleteTask } from "../../redux/slicers/task";
 import { useAppDispatch } from "../../store";
 import Button from "../others/Button";
+import { useNavigation } from "@react-navigation/native";
+
 interface Props {
-  title: string;
-  subject: string;
-  color: string;
-  description?: string;
-  id: string;
+  taskData: Task;
   index: number;
 }
 
-export default function Task({
-  title,
-  subject,
-  color,
-  description,
-  id,
-  index,
-}: Props) {
+export default function Task({ taskData, index }: Props) {
+  const { title, subject, description, _id } = taskData;
   const [height, setHeight] = React.useState(0);
   const animatedValue = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const deleteHandler = () => {
-    dispatch(deleteTask({ index: id }));
+    dispatch(deleteTask({ index: _id }));
+  };
+  const updateHandler = () => {
+    // @ts-ignore
+    navigation.navigate("UpdateTask", taskData);
   };
   return (
     <>
@@ -53,7 +50,7 @@ export default function Task({
         layout={Layout.springify()}
         entering={FadeInLeft.delay(index * 100)}
         exiting={FadeOutRight}
-        style={[styles.taskBox, { backgroundColor: color }]}
+        style={[styles.taskBox, { backgroundColor: subject.color ?? "white" }]}
       >
         <Menu style={{ position: "relative" }}>
           <MenuTrigger triggerOnLongPress>
@@ -66,7 +63,7 @@ export default function Task({
                 <View>
                   <Text style={{ fontSize: 20 }}>{title}</Text>
                 </View>
-                <Text style={styles.subject}>{subject}</Text>
+                <Text style={styles.subject}>{subject.title}</Text>
               </View>
               {description ? (
                 <Text style={{ fontSize: 14, paddingBottom: 5 }}>
@@ -87,6 +84,13 @@ export default function Task({
               },
             }}
           >
+            <MenuOption
+              onSelect={updateHandler}
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <Text style={{ color: "blue" }}>Upravit</Text>
+              <Icon name="edit" size={20} color="blue" />
+            </MenuOption>
             <MenuOption
               onSelect={deleteHandler}
               style={{ flexDirection: "row", justifyContent: "space-between" }}

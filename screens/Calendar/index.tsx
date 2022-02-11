@@ -13,13 +13,17 @@ import Calendar from "./CalendarScreen";
 import AddTask from "./AddTask";
 // import SocketProvider from "../../context/SocketContext";
 import useSocket from "../../hooks/useSocket";
+import UpdateTask from "./UpdateTask";
+
 
 type CalendarStackParamList = {
   CalendarScreen: undefined;
   AddTask: {
     subject: { index: number; title: string };
     activeDate: DateData;
+    type: TaskType;
   };
+  UpdateTask: Task;
 };
 
 const Stack = createStackNavigator<CalendarStackParamList>();
@@ -48,8 +52,17 @@ export default function CalendarApp() {
             CardStyleInterpolators.forFadeFromBottomAndroid,
         }}
         initialParams={{
-          subject: { title: "Ajakldlas", index: 0 },
+          subject: { title: "", index: 0 },
           activeDate: { day: 0, month: 0, year: 2021 },
+        }}
+      />
+      <Stack.Screen
+        name="UpdateTask"
+        component={UpdateTask}
+        options={{
+          title: "Událost",
+          cardStyleInterpolator:
+            CardStyleInterpolators.forFadeFromBottomAndroid,
         }}
       />
     </Stack.Navigator>

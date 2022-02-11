@@ -1,9 +1,8 @@
 import React from "react";
 import { CalendarNavProps } from "./";
 import { useAppDispatch, useAppSelector } from "../../store";
-import { addTask } from "../../redux/slicers/task";
+import { updateTask } from "../../redux/slicers/task";
 import TaskForm from "../../components/moleculs/TaskForm";
-
 
 interface Props {}
 export interface SubmitProps {
@@ -11,13 +10,13 @@ export interface SubmitProps {
   description: string;
   personal: boolean;
   color: string;
-  date: DateData
+  date: DateData; 
 }
-export default function AddTask({
+export default function UpdateTask({
   navigation,
   route,
-}: CalendarNavProps<"AddTask">) {
-  const { subject, activeDate, type } = route.params;
+}: CalendarNavProps<"UpdateTask">) {
+  const task : Task = route.params;
   // const { socket } = useContext(SocketContext);
   const user = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
@@ -25,16 +24,16 @@ export default function AddTask({
     const { title, description, personal, color, date } = pr;
     if (!title) return;
     dispatch(
-      addTask({
+      updateTask({
         index: {
-          _id: "",
+          _id: task._id,
           title,
           description,
-          type,
+          type: task.type,
+          // uprava data se v budoucnu zmeni
           date,
           subject: {
-            title: subject.title,
-            index: subject.index,
+            title: task.subject.title,
             color,
           },
           personal,
@@ -48,9 +47,10 @@ export default function AddTask({
 
   return (
     <TaskForm
-      activeDate={activeDate}
-      subject={subject}
+      activeDate={task.date}
+      subject={task.subject}
       onPressHandler={onPressHandler}
+      defaultProps={task}
     />
   );
 }

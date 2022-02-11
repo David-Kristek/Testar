@@ -7,9 +7,8 @@ import React, {
   useEffect,
 } from "react";
 // const ENDPOINT = "https://testar-server.herokuapp.com/";
-const ENDPOINT = "http://10.0.0.2:5000/";
+const ENDPOINT = "http://10.0.0.3:5000/";
 import socketIOClient, { Socket } from "socket.io-client";
-import { socketTaskAdded, socketTaskDeleted } from "../redux/slicers/task";
 import socketListeners from "../services/socket";
 import { useAppDispatch, useAppSelector } from "../store";
 

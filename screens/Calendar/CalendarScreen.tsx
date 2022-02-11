@@ -18,6 +18,7 @@ import { useAppDispatch, useAppSelector } from "../../store";
 import TimeTable from "../../components/moleculs/Timetable";
 import TaskList from "../../components/moleculs/TaskList";
 import Animated, { FadeInUp } from "react-native-reanimated";
+import FloatingButton from "../../components/atoms/FloatingButton";
 
 export type activeSubject = {
   index: number;
@@ -170,31 +171,27 @@ export default function Calendar({
           />
         </Animated.View>
         <TimeTable
-            setActiveSubject={setActiveSubject}
-            activeSubject={activeSubject}
-            activeDate={activeDate}
-            // canRender={calendarRender.current.is}
-          />
+          setActiveSubject={setActiveSubject}
+          activeSubject={activeSubject}
+          activeDate={activeDate}
+          // canRender={calendarRender.current.is}
+        />
         <TaskList activeDate={activeDate} />
-        {activeSubject.title && activeDate.dayInWeek !== -1 ? (
-          <TouchableOpacity
-            style={styles.plus}
-            onPress={() => {
-              navigation.navigate("AddTask", {
-                subject: activeSubject,
-                activeDate: {
-                  day: activeDate.day,
-                  month: month,
-                  year: year.current.count,
-                },
-              });
-            }}
-          >
-            <Icon name="plus" size={30} color={"white"} />
-          </TouchableOpacity>
-        ) : (
-          <></>
-        )}
+
+        <FloatingButton
+          navigateToAddTask={(type: TaskType) => {
+            navigation.navigate("AddTask", {
+              subject: activeSubject,
+              activeDate: {
+                day: activeDate.day,
+                month: activeDate.month,
+                year: year.current.count,
+              },
+              type,
+            });
+          }}
+          visble={!!(activeSubject.title && activeDate.dayInWeek !== -1)}
+        />
       </View>
     </>
   );

@@ -25,11 +25,20 @@ export default class SocketService {
         TaskActions.deleteTask({ index: taskId, options: { socket: true } })
       );
     });
+    SocketService.socket.on("TASK_UPDATED", (task: Task) => {
+      console.log(task, " task updated");
+      this.dispatch(
+        TaskActions.updateTask({ index: task, options: { socket: true } })
+      );
+    });
   }
   public static addTask(task: Task) {
     SocketService.socket.emit("ADD_TASK", task);
   }
   public static deleteTask(taskId: string) {
     SocketService.socket.emit("DELETE_TASK", taskId);
+  }
+  public static updateTask(task: Task) {
+    SocketService.socket.emit("UPDATE_TASK", task);
   }
 }

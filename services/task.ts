@@ -5,7 +5,7 @@ import socketListeners from "./socket";
 import axios from "axios";
 // predelat na backendu
 // const API = "https://testar-server.herokuapp.com/task/";
-const API = "http://10.0.0.2:5000/task/";
+const API = "http://10.0.0.3:5000/task/";
 export const taskApi = createApi({
   reducerPath: "taskApi",
   baseQuery: fetchBaseQuery({
@@ -77,7 +77,15 @@ const addTask = (task: Task, token: string) => {
 const deleteTask = (taskId: string, token: string) => {
   return axios.delete(API, {
     headers: { token },
-    data: {id: taskId}
+    data: { id: taskId },
   });
 };
-export default { addTask, deleteTask };
+const updateTask = (task: Task, token: string) => {
+  return axios({
+    url: API,
+    method: "PUT",
+    data: { task },
+    headers: { token },
+  });
+};
+export default { addTask, deleteTask, updateTask };

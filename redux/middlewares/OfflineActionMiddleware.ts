@@ -12,7 +12,7 @@ const resolveAction = async (action: AnyAction, token: string) => {
   try {
     const res = (await TaskServices[ActionCaused](action.payload.index, token))
       .data;
-
+    
     SocketService[ActionCaused](res);
     return {
       type: action.type,

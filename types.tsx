@@ -42,6 +42,7 @@ declare global {
     createdByUser: OtherUser;
     type: TaskType;
     description: string;
+    personal: boolean;
     _id: string;
   };
   type TaskType = "homework" | "test" | "progress";

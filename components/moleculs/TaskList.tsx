@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, FlatList, ListRenderItem } from "react-native";
 import { useAnimatedStyle } from "react-native-reanimated";
 import { activeDate } from "../../screens/Calendar/CalendarScreen";
 import { useAppSelector } from "../../store";
@@ -14,7 +14,7 @@ export default function TaskList({ activeDate }: Props) {
   if (!tasks) return <></>;
   var order = 0;
   return (
-    <>
+    <View style={{ position: "relative", zIndex: -1000}}>
       {tasks.map((task, index) => {
         if (
           task &&
@@ -26,18 +26,14 @@ export default function TaskList({ activeDate }: Props) {
           if (task.type !== "progress") order++;
           return (
             <Task
-              title={task.title}
-              subject={task.subject.title}
-              color={task.subject.color}
-              description={task.description}
-              key={index}
-              id={task._id}
               index={order - 1}
+              taskData={task}
+              key={index}
             />
           );
         }
       })}
-    </>
+    </View>
   );
 }
 

@@ -55,7 +55,6 @@ export default function CalendarDay({
     sharedVal.value = "#ECECEC";
     if (isActive) {
       sharedVal.value = "#00EAE9";
-      console.log("setting to one");
     }
   }, [active]);
   return (
