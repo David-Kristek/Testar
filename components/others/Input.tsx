@@ -25,7 +25,7 @@ export default function Input({ placeholder, set, value, noMargin, numbers }: Pr
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       onChangeText={set}
-      value={String(value)}
+      value={value ? String(value) : undefined}
       keyboardType={numbers ? "numeric" : "default"}
     />
   );
