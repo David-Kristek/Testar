@@ -1,8 +1,8 @@
 import React from "react";
-import { CalendarNavProps } from "./";
-import { useAppDispatch, useAppSelector } from "../../store";
-import { addTask } from "../../redux/slicers/task";
-import TaskForm from "../../components/moleculs/TaskForm";
+import { CalendarNavProps } from ".";
+import { useAppDispatch, useAppSelector } from "../../../store";
+import { addTask } from "../../../redux/slicers/task";
+import TaskForm from "../../../components/moleculs/TaskForm";
 
 
 interface Props {}

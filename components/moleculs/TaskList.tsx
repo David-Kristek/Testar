@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View, Text, FlatList, ListRenderItem } from "react-native";
 import { useAnimatedStyle } from "react-native-reanimated";
-import { activeDate } from "../../screens/Calendar/CalendarScreen";
+import { activeDate } from "../../screens/AppTabs/Calendar/CalendarScreen";
 import { useAppSelector } from "../../store";
 import Task from "../atoms/Task";
 

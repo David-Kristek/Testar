@@ -4,7 +4,7 @@ import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated";
 import {
   activeDate,
   activeSubject,
-} from "../../screens/Calendar/CalendarScreen";
+} from "../../screens/AppTabs/Calendar/CalendarScreen";
 import { useGetTimeTableDataQuery } from "../../services/task";
 import { useAppSelector } from "../../store";
 import Subject from "../atoms/Subject";

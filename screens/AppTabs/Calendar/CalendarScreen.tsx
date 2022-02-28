@@ -7,18 +7,18 @@ import {
   FlatList,
   Dimensions,
 } from "react-native";
-import Header from "../../components/others/Header";
+import Header from "../../../components/others/Header";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { CalendarNavProps } from "./index";
-import { data } from "../../hooks/useCalendarData";
-import CalendarComponent from "../../components/moleculs/CalendarComponent";
-import SideMenu from "../../components/atoms/SideMenu";
-import { useGetTasksQuery } from "../../services/task";
-import { useAppDispatch, useAppSelector } from "../../store";
-import TimeTable from "../../components/moleculs/Timetable";
-import TaskList from "../../components/moleculs/TaskList";
+import { data } from "../../../hooks/useCalendarData";
+import CalendarComponent from "../../../components/moleculs/CalendarComponent";
+import SideMenu from "../../../components/atoms/SideMenu";
+import { useGetTasksQuery } from "../../../services/task";
+import { useAppDispatch, useAppSelector } from "../../../store";
+import TimeTable from "../../../components/moleculs/Timetable";
+import TaskList from "../../../components/moleculs/TaskList";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import FloatingButton from "../../components/atoms/FloatingButton";
+import FloatingButton from "../../../components/atoms/FloatingButton";
 
 export type activeSubject = {
   index: number;

@@ -8,7 +8,7 @@ import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 // const API =  "https://testar-server.herokuapp.com"
 const API = "https://testar-server.herokuapp.com/auth";
-
+// const API = "http://10.0.0.3:5000/auth";
 export type loginProps = {
   username: string;
   email: string;

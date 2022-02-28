@@ -4,7 +4,7 @@ import * as React from "react";
 import { Pressable } from "react-native";
 
 import NotFoundScreen from "../screens/NotFoundScreen";
-import TabOneScreen from "../screens/Calendar/CalendarScreen";
+import TabOneScreen from "../screens/AppTabs/Calendar/CalendarScreen";
 import Login from "../screens/Auth/Login";
 import RegisterScreen from "../screens/Auth/Register";
 const Stack = createNativeStackNavigator();
@@ -19,7 +19,7 @@ export default function Navigation() {
         />
         <Stack.Screen
           name="Register"
-          component={RegisterScreen}
+          component={RegisterScreen}  
           options={{ headerShown: false }}
         />
         <Stack.Screen

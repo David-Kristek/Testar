@@ -3,7 +3,7 @@ import { TextInput, StyleSheet, View, Text, ScrollView } from "react-native";
 import Checkbox from "expo-checkbox";
 import ColorPicker from "react-native-wheel-color-picker";
 import DatePicker from "react-native-date-picker";
-import { SubmitProps } from "../../screens/Calendar/AddTask";
+import { SubmitProps } from "../../screens/AppTabs/Calendar/AddTask";
 import { useGetSubjectColorQuery } from "../../services/task";
 import Button from "../others/Button";
 import Input from "../others/Input";
