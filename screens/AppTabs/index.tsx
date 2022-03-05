@@ -7,8 +7,8 @@ import { RouteProp } from "@react-navigation/native";
 import Calendar from "./Calendar";
 import Tasks from "./Tasks";
 type CalendarStackParamList = {
-  CalendarScreen: undefined;
-  TasksScreen: undefined;
+  calendar: undefined;
+  tasks: undefined;
 };
 
 const Stack = createBottomTabNavigator<CalendarStackParamList>();
@@ -26,10 +26,10 @@ function AppTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === "CalendarScreen") {
+          if (route.name === "calendar") {
             iconName = "home";
             return <Icon name={"calendar"} size={size} color={color} />;
-          } else if (route.name === "TasksScreen") {
+          } else if (route.name === "tasks") {
             return <Icona name={"tasks"} size={size} color={color} />;
           }
 
@@ -43,11 +43,11 @@ function AppTabs() {
       //   }}
     >
       <Tabs.Screen
-        name="CalendarScreen"
+        name="calendar"
         component={Calendar}
         options={{ headerShown: false, title: "Kalendář"}}
       />
-      <Tabs.Screen name="TasksScreen" component={Tasks} options={{ title: "Seznam" }} />
+      <Tabs.Screen name="tasks" component={Tasks} options={{ title: "Seznam" }} />
     </Tabs.Navigator>
   );
 }

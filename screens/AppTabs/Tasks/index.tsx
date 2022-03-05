@@ -1,9 +1,18 @@
 import React, { useMemo } from "react";
-import { Text, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
+import Animated, {
+  FadeInDown,
+  Layout,
+  Easing,
+  SlideOutLeft,
+} from "react-native-reanimated";
 import Task from "../../../components/atoms/Task";
+import {
+  dateEquals,
+  getWeekDay,
+  weekDay,
+} from "../../../hooks/useCalendarData";
 import { useAppSelector } from "../../../store";
-
 export default function Tasks() {
   const { tasks } = useAppSelector((state) => state.task);
   const cD = new Date();
@@ -28,15 +37,119 @@ export default function Tasks() {
     });
     return filtredTasks.sort((a, b) => (compareDate(a.date, b.date) ? 1 : -1));
   }, [tasks]);
+  const defaultDate = {
+    day: cD.getDate(),
+    month: cD.getMonth(),
+    year: cD.getFullYear(),
+  };
+  var prevDate: DateData = defaultDate;
+  //  otázka prevWeeku
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ alignItems: "center" }}>
       {currentTasks &&
-        currentTasks.map((task, index) => (
-          <>
-          <Text>{task.date.day}. {task.date.month + 1}.</Text>
-            <Task index={1} taskData={task} key={index} />
-          </>
-        ))}
+        currentTasks.map((task, index) => {
+          // completely new list
+          // <View style={{ width: "90%" }}>
+          // <Text>{task.date.day}. {task.date.month + 1}.</Text>
+          //   <Task index={1} taskData={task} key={index} />
+          // </View
+
+          const jsx = (
+            <>
+              {/* {weekDay(task.date).num <
+                weekDay(prevDate).num &&
+              !dateEquals(
+                currentTasks[index + 1]?.date ?? defaultDate,
+                task.date
+              ) ? (
+                <View style={styles.line}></View>
+              ) : (
+                <></>
+              )} */}
+              {dateEquals(prevDate, task.date) ? (
+                <></>
+              ) : (
+                <Text style={styles.date}>
+                  {task.date.day}. {task.date.month}.
+                  {"  "}
+                  {weekDay(task.date).title}
+                </Text>
+              )}
+              <Animated.View
+                key={index}
+                style={[styles.box, { backgroundColor: task.subject.color }]}
+                entering={FadeInDown.delay(index * 100)}
+                layout={Layout.easing(Easing.bounce)}
+                exiting={SlideOutLeft}
+              >
+                <View>
+                  <Text style={styles.title}>{task.title}</Text>
+                  {task.description ? (
+                    <Text style={styles.desc}>{task.description}</Text>
+                  ) : (
+                    <></>
+                  )}
+                </View>
+                <Text style={styles.subject}>{task.subject.title}</Text>
+              </Animated.View>
+            </>
+          );
+          prevDate = task.date;
+          return jsx;
+        })}
     </ScrollView>
   );
 }
+const styles = StyleSheet.create({
+  box: {
+    opacity: 0.9,
+    flexDirection: "row",
+    marginVertical: 5,
+    paddingVertical: 15,
+    width: "90%",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 20,
+    backgroundColor: "black",
+    borderRadius: 10,
+    // Shadow for iOS
+    shadowOpacity: 0.08,
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowRadius: 10,
+    // Shadow for Android
+    elevation: 5,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "400",
+    // color: "#242424",
+    color: "black",
+  },
+  desc: {
+    fontSize: 14,
+    color: "#242424",
+    paddingTop: 5,
+  },
+  date: {
+    fontSize: 16,
+    width: "80%",
+    paddingTop: 20,
+  },
+  subject: {
+    fontSize: 12,
+    padding: 6,
+    textAlign: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    color: "black",
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  line: {
+    width: "100%",
+    backgroundColor: "dodgerblue",
+    height: 3,
+  },
+});

@@ -17,7 +17,7 @@ import { useGetTasksQuery } from "../../../services/task";
 import { useAppDispatch, useAppSelector } from "../../../store";
 import TimeTable from "../../../components/moleculs/Timetable";
 import TaskList from "../../../components/moleculs/TaskList";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import Animated, { Easing, FadeInUp, Layout } from "react-native-reanimated";
 import FloatingButton from "../../../components/atoms/FloatingButton";
 
 export type activeSubject = {
@@ -134,13 +134,7 @@ export default function Calendar({
         <SideMenu />
       </Header>
       <View style={styles.container}>
-        <Animated.View
-          entering={
-            FadeInUp.delay(100).duration(300)
-            // .withCallback((finished) => {}
-            // if (finished) calendarRender.current.is = true;
-          }
-        >
+        <Animated.View entering={FadeInUp.delay(100).duration(300)}>
           <View style={styles.weekDaysCon}>
             {data.days.map((day, index) => (
               <Text

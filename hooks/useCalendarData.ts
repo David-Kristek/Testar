@@ -25,6 +25,23 @@ export const data = {
   ],
   days: ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek"],
 };
+export const getWeekDay = (nWeekDay: number) => {
+  let res;
+  if (nWeekDay === 0) res = 6;
+  else res = nWeekDay - 1;
+  return res;
+};
+export const weekDay = (date: DateData) => {
+  const dateIns = new Date(date.year, date.month, date.day);
+  // console.log(dateIns.getDay() - 1, );
+  return {
+    title: data.days[dateIns.getDay() - 1].slice(0, 2),
+    num: dateIns.getDay() - 1,
+  };
+};
+export const dateEquals = (a: DateData, b: DateData) => {
+  return a.day === b.day && a.month === b.month && a.year === b.year;
+};
 export default function useCalendarData(year: number, month: number) {
   const [calendarData, setCalendarData] = useState<monthData>();
 
@@ -46,6 +63,7 @@ export default function useCalendarData(year: number, month: number) {
     days: ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek"],
   };
   // const month = monthN - 1;
+
   useEffect(() => {
     const date = new Date(year, month, 1);
     var FirstDayInMonth;
@@ -53,9 +71,7 @@ export default function useCalendarData(year: number, month: number) {
     var plusS = false;
     // dopočítání jaký den v týdnu je první v měsíci (protože v JS začínají dny od neděle)
     const nWeekDay = date.getDay();
-    if (nWeekDay === 0) FirstDayInMonth = 6;
-    else FirstDayInMonth = nWeekDay - 1;
-
+    FirstDayInMonth = getWeekDay(nWeekDay);
     var dayCount = 1;
     //  for -> max 6 týdnů, v případě méně dá se uvnitř break
     for (let week = 0; week < 6; week++) {
