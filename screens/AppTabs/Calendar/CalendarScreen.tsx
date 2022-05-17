@@ -136,7 +136,7 @@ export default function Calendar({
       <View style={styles.container}>
         <Animated.View entering={FadeInUp.delay(100).duration(300)}>
           <View style={styles.weekDaysCon}>
-            {data.days.map((day, index) => (
+            {data.days.slice(0,5).map((day, index) => (
               <Text
                 key={index}
                 style={[styles.dayCl, styles.weekDay]}

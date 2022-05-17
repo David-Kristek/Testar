@@ -9,6 +9,7 @@ import Animated, {
 import Task from "../../../components/atoms/Task";
 import {
   dateEquals,
+  getNumberOfWeek,
   getWeekDay,
   weekDay,
 } from "../../../hooks/useCalendarData";
@@ -53,30 +54,25 @@ export default function Tasks() {
           // <Text>{task.date.day}. {task.date.month + 1}.</Text>
           //   <Task index={1} taskData={task} key={index} />
           // </View
-
-          const jsx = (
-            <>
-              {/* {weekDay(task.date).num <
-                weekDay(prevDate).num &&
-              !dateEquals(
-                currentTasks[index + 1]?.date ?? defaultDate,
-                task.date
-              ) ? (
+          {
+            /* {getNumberOfWeek(task.date) > getNumberOfWeek(task.date) ? (
                 <View style={styles.line}></View>
               ) : (
                 <></>
-              )} */}
+              )} */
+          }
+
+          const jsx = (
+            <View key={index} style={{ width: "90%" }}>
               {dateEquals(prevDate, task.date) ? (
                 <></>
               ) : (
                 <Text style={styles.date}>
-                  {task.date.day}. {task.date.month}.
-                  {"  "}
+                  {task.date.day}. {task.date.month + 1}.{"  "}
                   {weekDay(task.date).title}
                 </Text>
               )}
               <Animated.View
-                key={index}
                 style={[styles.box, { backgroundColor: task.subject.color }]}
                 entering={FadeInDown.delay(index * 100)}
                 layout={Layout.easing(Easing.bounce)}
@@ -92,7 +88,7 @@ export default function Tasks() {
                 </View>
                 <Text style={styles.subject}>{task.subject.title}</Text>
               </Animated.View>
-            </>
+            </View>
           );
           prevDate = task.date;
           return jsx;
@@ -106,12 +102,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginVertical: 5,
     paddingVertical: 15,
-    width: "90%",
+    flexWrap: "wrap",
     justifyContent: "space-between",
     alignItems: "center",
     paddingLeft: 20,
     backgroundColor: "black",
     borderRadius: 10,
+
     // Shadow for iOS
     shadowOpacity: 0.08,
     shadowOffset: {
@@ -146,6 +143,7 @@ const styles = StyleSheet.create({
     color: "black",
     borderRadius: 8,
     marginRight: 10,
+    marginVertical: 2,
   },
   line: {
     width: "100%",

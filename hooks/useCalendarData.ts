@@ -23,7 +23,7 @@ export const data = {
     { name: "Listopad" },
     { name: "Prosinec" },
   ],
-  days: ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek"],
+  days: ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"],
 };
 export const getWeekDay = (nWeekDay: number) => {
   let res;
@@ -39,6 +39,17 @@ export const weekDay = (date: DateData) => {
     num: dateIns.getDay() - 1,
   };
 };
+
+export const getNumberOfWeek = (date: DateData) => {
+  const dateIns = new Date(date.year, date.month, date.day);
+  let onejan = new Date(dateIns.getFullYear(), 0, 1);
+  let week = Math.ceil(
+    ((dateIns.getTime() - onejan.getTime()) / 86400000 + onejan.getDay() + 1) /
+      7
+  );
+  return week;
+};
+
 export const dateEquals = (a: DateData, b: DateData) => {
   return a.day === b.day && a.month === b.month && a.year === b.year;
 };

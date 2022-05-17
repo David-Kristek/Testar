@@ -22,6 +22,7 @@ const Tabs = createBottomTabNavigator<CalendarStackParamList>();
 function AppTabs() {
   return (
     <Tabs.Navigator
+      initialRouteName="calendar"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -32,7 +33,6 @@ function AppTabs() {
           } else if (route.name === "tasks") {
             return <Icona name={"tasks"} size={size} color={color} />;
           }
-
           // // You can return any component that you like here!
           // return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -45,9 +45,13 @@ function AppTabs() {
       <Tabs.Screen
         name="calendar"
         component={Calendar}
-        options={{ headerShown: false, title: "Kalendář"}}
+        options={{ headerShown: false, title: "Kalendář" }}
       />
-      <Tabs.Screen name="tasks" component={Tasks} options={{ title: "Seznam" }} />
+      <Tabs.Screen
+        name="tasks"
+        component={Tasks}
+        options={{ title: "Seznam" }}
+      />
     </Tabs.Navigator>
   );
 }
